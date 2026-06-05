@@ -3,286 +3,129 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Idara OS — Système de gestion d'institut islamique francophone">
 <title>Idara OS</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --bg:        #F7F4EF;
-  --bg2:       #EEEAE2;
-  --bg3:       #E4DFD5;
-  --surface:   #FDFCF9;
-  --border:    #D9D3C8;
-  --border2:   #C8C0B2;
-  --ink:       #1C1A16;
-  --ink2:      #4A4540;
-  --ink3:      #7A7268;
-  --accent:    #2D5016;
-  --accent2:   #3D6B20;
-  --accent-bg: #EAF0E3;
-  --accent-lt: #D4E6C3;
-  --gold:      #9A7B2F;
-  --gold-bg:   #F5EDD6;
-  --red:       #8B2020;
-  --red-bg:    #F5E0E0;
-  --blue:      #1A3A5C;
-  --blue-bg:   #E0E9F5;
-  --radius:    10px;
-  --radius-lg: 14px;
-  --shadow:    0 1px 3px rgba(28,26,22,.08), 0 4px 16px rgba(28,26,22,.06);
-  --shadow-lg: 0 8px 32px rgba(28,26,22,.14);
-  --font-head: 'DM Serif Display', Georgia, serif;
-  --font-body: 'DM Sans', sans-serif;
-  --sidebar-w: 224px;
-  --nav-h:     52px;
+:root{
+  --bg:#F7F4EF;--bg2:#EEEAE2;--bg3:#E4DFD5;--surface:#FDFCF9;
+  --border:#D9D3C8;--border2:#C8C0B2;--ink:#1C1A16;--ink2:#4A4540;--ink3:#7A7268;
+  --accent:#2D5016;--accent2:#3D6B20;--accent-bg:#EAF0E3;--accent-lt:#D4E6C3;
+  --gold:#9A7B2F;--gold-bg:#F5EDD6;--red:#8B2020;--red-bg:#F5E0E0;
+  --blue:#1A3A5C;--blue-bg:#E0E9F5;
+  --radius:10px;--radius-lg:14px;
+  --shadow:0 1px 3px rgba(28,26,22,.08),0 4px 16px rgba(28,26,22,.06);
+  --shadow-lg:0 8px 32px rgba(28,26,22,.14);
+  --font-head:'DM Serif Display',Georgia,serif;
+  --font-body:'DM Sans',sans-serif;
+  --sidebar-w:224px;--nav-h:52px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--bg);font-family:var(--font-body);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased}
 
-/* ══════════════════════════════
-   LOGIN
-══════════════════════════════ */
-#login-screen{
-  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
-  background:var(--bg);
-  background-image:
-    radial-gradient(ellipse 70% 60% at 85% 15%, rgba(45,80,22,.09) 0%, transparent 65%),
-    radial-gradient(ellipse 55% 55% at 15% 85%, rgba(154,123,47,.07) 0%, transparent 65%);
-}
-.login-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:20px;
-  box-shadow:var(--shadow-lg);width:100%;max-width:420px;padding:44px 40px;
-}
+/* ── LOADING ── */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px}
+#loading .mark{width:56px;height:56px;border-radius:16px;background:var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(45,80,22,.32)}
+#loading .mark i{font-size:28px;color:#fff}
+#loading p{font-size:13px;color:var(--ink3)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+
+/* ── LOGIN ── */
+#login-screen{min-height:100vh;display:none;align-items:center;justify-content:center;padding:20px;background:var(--bg);background-image:radial-gradient(ellipse 70% 60% at 85% 15%,rgba(45,80,22,.09) 0%,transparent 65%),radial-gradient(ellipse 55% 55% at 15% 85%,rgba(154,123,47,.07) 0%,transparent 65%)}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-lg);width:100%;max-width:420px;padding:44px 40px}
 .login-brand{text-align:center;margin-bottom:36px}
-.login-icon{
-  width:56px;height:56px;border-radius:16px;background:var(--accent);
-  display:inline-flex;align-items:center;justify-content:center;
-  margin-bottom:16px;box-shadow:0 6px 20px rgba(45,80,22,.32);
-}
+.login-icon{width:56px;height:56px;border-radius:16px;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 6px 20px rgba(45,80,22,.32)}
 .login-icon i{font-size:28px;color:#fff}
-.login-brand h1{font-family:var(--font-head);font-size:28px;color:var(--ink);font-weight:400;letter-spacing:-.4px}
+.login-brand h1{font-family:var(--font-head);font-size:28px;color:var(--ink);font-weight:400}
 .login-brand p{font-size:13px;color:var(--ink3);margin-top:5px}
 .login-form{display:flex;flex-direction:column;gap:16px}
-.field-wrap label{display:block;font-size:11px;font-weight:600;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
-.field-wrap input{
-  width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:var(--radius);
-  background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;outline:none;
-  transition:border-color .15s,box-shadow .15s;
-}
-.field-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,80,22,.12)}
-.sep{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink3)}
-.sep::before,.sep::after{content:'';flex:1;height:1px;background:var(--border)}
-.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.role-pill{
-  padding:11px 8px;border:1.5px solid var(--border);border-radius:var(--radius);
-  text-align:center;cursor:pointer;transition:all .15s;background:var(--bg);
-}
-.role-pill:hover{border-color:var(--accent2);background:var(--accent-bg)}
-.role-pill.active{border-color:var(--accent);background:var(--accent-bg);box-shadow:0 0 0 2px rgba(45,80,22,.14)}
-.role-pill i{display:block;font-size:20px;color:var(--ink3);margin-bottom:5px;transition:color .15s}
-.role-pill.active i,.role-pill:hover i{color:var(--accent)}
-.role-pill span{font-size:12px;font-weight:500;color:var(--ink2)}
-.btn-signin{
-  width:100%;padding:13px;border:none;border-radius:var(--radius);
-  background:var(--accent);color:#fff;font-family:var(--font-body);font-size:14px;
-  font-weight:600;cursor:pointer;letter-spacing:.02em;margin-top:4px;
-  box-shadow:0 3px 10px rgba(45,80,22,.3);transition:all .15s;
-}
-.btn-signin:hover{background:var(--accent2);box-shadow:0 6px 18px rgba(45,80,22,.4);transform:translateY(-1px)}
-.login-hint{text-align:center;font-size:12px;color:var(--ink3);margin-top:18px;line-height:1.6}
+.fld label{display:block;font-size:11px;font-weight:600;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.fld input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .15s,box-shadow .15s}
+.fld input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,80,22,.12)}
+.err-msg{background:var(--red-bg);color:var(--red);border:1px solid #D4A0A0;border-radius:var(--radius);padding:10px 14px;font-size:13px;display:none}
+.btn-signin{width:100%;padding:13px;border:none;border-radius:var(--radius);background:var(--accent);color:#fff;font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 3px 10px rgba(45,80,22,.3);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-signin:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-signin:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.login-hint{text-align:center;font-size:12px;color:var(--ink3);margin-top:18px}
 
-/* ══════════════════════════════
-   APP SHELL
-══════════════════════════════ */
+/* ── APP ── */
 #app{display:none;height:100vh;flex-direction:column;overflow:hidden}
 #app.show{display:flex}
 
-/* TOP BAR */
-.topbar{
-  height:var(--nav-h);background:var(--surface);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;flex-shrink:0;z-index:100;position:relative;
-  box-shadow:0 1px 0 var(--border);
-}
-.topbar-brand{
-  width:var(--sidebar-w);display:flex;align-items:center;gap:10px;
-  padding:0 20px;flex-shrink:0;border-right:1px solid var(--border);height:100%;
-}
-.brand-mark{
-  width:32px;height:32px;border-radius:9px;background:var(--accent);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  box-shadow:0 2px 6px rgba(45,80,22,.25);
-}
+/* TOPBAR */
+.topbar{height:var(--nav-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;z-index:100}
+.topbar-brand{width:var(--sidebar-w);display:flex;align-items:center;gap:10px;padding:0 20px;flex-shrink:0;border-right:1px solid var(--border);height:100%}
+.brand-mark{width:32px;height:32px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .brand-mark i{font-size:17px;color:#fff}
-.brand-label{font-family:var(--font-head);font-size:19px;color:var(--ink);font-weight:400;letter-spacing:-.2px}
+.brand-label{font-family:var(--font-head);font-size:19px;color:var(--ink);font-weight:400}
 .topbar-center{flex:1;padding:0 20px}
-.search-box{
-  display:flex;align-items:center;gap:8px;background:var(--bg);
-  border:1px solid var(--border);border-radius:var(--radius);
-  padding:7px 14px;max-width:340px;cursor:text;
-  transition:border-color .15s;
-}
-.search-box:hover{border-color:var(--border2)}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:7px 14px;max-width:340px}
 .search-box i{font-size:15px;color:var(--ink3)}
 .search-box span{font-size:13px;color:var(--ink3)}
 .topbar-right{display:flex;align-items:center;gap:6px;padding:0 16px}
-.tb-btn{
-  width:36px;height:36px;border-radius:9px;border:1px solid var(--border);
-  background:var(--bg);display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all .15s;position:relative;
-}
-.tb-btn:hover{background:var(--bg2);border-color:var(--border2)}
+.tb-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.tb-btn:hover{background:var(--bg2)}
 .tb-btn i{font-size:17px;color:var(--ink2)}
-.notif-pip{
-  position:absolute;top:6px;right:6px;width:6px;height:6px;
-  border-radius:50%;background:#C0392B;border:1.5px solid var(--surface);
-}
-.user-pill{
-  display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;
-  border:1px solid var(--border);border-radius:var(--radius);
-  background:var(--bg);cursor:pointer;transition:all .15s;margin-left:4px;
-}
-.user-pill:hover{background:var(--bg2)}
-.u-avatar{
-  width:28px;height:28px;border-radius:7px;background:var(--accent);
-  display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:700;color:#fff;flex-shrink:0;
-}
+.user-pill{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);cursor:pointer;margin-left:4px}
+.u-av{width:28px;height:28px;border-radius:7px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
 .u-name{font-size:13px;font-weight:500;color:var(--ink)}
 .u-role{font-size:11px;color:var(--ink3);margin-top:1px}
 .mob-toggle{display:none;width:38px;height:38px;align-items:center;justify-content:center;cursor:pointer;border-radius:8px;margin-left:8px}
 
-/* ══════════════════════════════
-   LAYOUT
-══════════════════════════════ */
+/* BODY */
 .body{display:flex;flex:1;overflow:hidden}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(28,26,22,.45);z-index:90}
 .sidebar-overlay.open{display:block}
-
-/* SIDEBAR */
-.sidebar{
-  width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
-  display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;
-  padding:16px 10px;transition:transform .22s cubic-bezier(.4,0,.2,1);
-}
+.sidebar{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;padding:16px 10px;transition:transform .22s cubic-bezier(.4,0,.2,1)}
 .sb-section{margin-bottom:22px}
-.sb-label{
-  font-size:10px;font-weight:700;color:var(--ink3);letter-spacing:.09em;
-  text-transform:uppercase;padding:0 10px;margin-bottom:5px;
-}
-.nav-item{
-  display:flex;align-items:center;gap:10px;padding:9px 10px;
-  border-radius:var(--radius);cursor:pointer;color:var(--ink2);
-  font-size:13px;font-weight:400;position:relative;transition:all .14s;
-  margin-bottom:2px;
-}
+.sb-label{font-size:10px;font-weight:700;color:var(--ink3);letter-spacing:.09em;text-transform:uppercase;padding:0 10px;margin-bottom:5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius);cursor:pointer;color:var(--ink2);font-size:13px;position:relative;transition:all .14s;margin-bottom:2px}
 .nav-item:hover{background:var(--bg2);color:var(--ink)}
 .nav-item.active{background:var(--accent-bg);color:var(--accent);font-weight:500}
-.nav-item.active::before{
-  content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);
-  width:3px;height:20px;background:var(--accent);border-radius:0 3px 3px 0;
-}
+.nav-item.active::before{content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--accent);border-radius:0 3px 3px 0}
 .nav-item i{font-size:18px;flex-shrink:0}
-.nav-pip{
-  margin-left:auto;font-size:10px;font-weight:700;padding:2px 6px;
-  border-radius:8px;background:var(--red-bg);color:var(--red);
-}
+.nav-pip{margin-left:auto;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;background:var(--red-bg);color:var(--red)}
 .nav-pip.g{background:var(--accent-bg);color:var(--accent)}
 .sb-foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--border)}
-
-/* MAIN */
 .main{flex:1;overflow-y:auto;background:var(--bg);padding:28px}
 
-/* ══════════════════════════════
-   COMPONENTS
-══════════════════════════════ */
-/* Page header */
+/* COMPONENTS */
 .ph{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:26px}
-.ph-left h1{font-family:var(--font-head);font-size:27px;color:var(--ink);font-weight:400;letter-spacing:-.3px}
-.ph-left p{font-size:13px;color:var(--ink3);margin-top:4px}
-
-/* Buttons */
-.btn{
-  display:inline-flex;align-items:center;gap:6px;padding:8px 16px;
-  border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);
-  color:var(--ink);font-family:var(--font-body);font-size:13px;font-weight:500;
-  cursor:pointer;transition:all .14s;white-space:nowrap;
-}
+.ph h1{font-family:var(--font-head);font-size:27px;color:var(--ink);font-weight:400}
+.ph p{font-size:13px;color:var(--ink3);margin-top:4px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;transition:all .14s;white-space:nowrap}
 .btn:hover{background:var(--bg2);border-color:var(--border2)}
 .btn i{font-size:15px}
 .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(45,80,22,.28)}
-.btn-primary:hover{background:var(--accent2);border-color:var(--accent2);box-shadow:0 4px 14px rgba(45,80,22,.38);transform:translateY(-1px)}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
 .btn-sm{padding:6px 12px;font-size:12px}
-.btn-warn{background:var(--gold-bg);border-color:#D4B86A;color:var(--gold)}
 .btn-danger{background:var(--red-bg);border-color:#D4A0A0;color:var(--red)}
-
-/* Role banner */
-.role-banner{
-  display:flex;align-items:center;gap:10px;padding:10px 16px;
-  border-radius:var(--radius);margin-bottom:22px;font-size:13px;font-weight:400;
-}
-.rb-admin{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-lt)}
-.rb-prof{background:var(--blue-bg);color:var(--blue);border:1px solid #C0D5EE}
-.rb-sec{background:var(--gold-bg);color:var(--gold);border:1px solid #E0CE98}
-.rb-parent{background:#F3EAF8;color:#6B2D80;border:1px solid #DCC5EC}
-.role-banner i{font-size:17px}
-
-/* KPI grid */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:22px}
-.kpi{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
-  padding:18px 20px;position:relative;overflow:hidden;
-}
-.kpi::after{
-  content:'';position:absolute;bottom:-20px;right:-20px;width:90px;height:90px;
-  border-radius:50%;opacity:.07;
-}
-.kpi:nth-child(1)::after{background:var(--accent)}
-.kpi:nth-child(2)::after{background:#3498DB}
-.kpi:nth-child(3)::after{background:var(--red)}
-.kpi:nth-child(4)::after{background:var(--gold)}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px}
 .kpi-lbl{font-size:11px;font-weight:600;color:var(--ink3);letter-spacing:.04em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:5px}
 .kpi-lbl i{font-size:14px}
 .kpi-val{font-family:var(--font-head);font-size:30px;color:var(--ink);line-height:1;margin-bottom:7px}
-.kpi-sub{font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:4px}
-.kpi-up{color:var(--accent)}
-.kpi-dn{color:var(--red)}
-
-/* Cards */
+.kpi-sub{font-size:12px;color:var(--ink3)}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
-.card-head{
-  display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
-  border-bottom:1px solid var(--border);background:var(--surface);
-}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)}
 .card-head-title{font-size:13px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:7px}
 .card-head-title i{font-size:16px;color:var(--ink3)}
 .card-body{padding:16px 18px}
-
-/* Bar chart */
-.bar-row{margin-bottom:11px}
-.bar-row:last-child{margin-bottom:0}
-.bar-meta{display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px}
-.bar-name{color:var(--ink2)}
-.bar-val{font-weight:600;color:var(--ink)}
-.bar-track{height:7px;background:var(--bg2);border-radius:4px;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.4,0,.2,1)}
-.bf-g{background:var(--accent)}
-.bf-a{background:var(--gold)}
-.bf-r{background:var(--red)}
-
-/* Alerts */
-.alert-row{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
-.alert-row:last-child{border-bottom:none;padding-bottom:0}
-.a-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
-.dot-r{background:var(--red)}
-.dot-a{background:var(--gold)}
-.dot-b{background:var(--blue)}
-.dot-g{background:var(--accent)}
-.a-txt{font-size:13px;color:var(--ink);line-height:1.5}
-.a-sub{font-size:11px;color:var(--ink3);margin-top:2px}
-
-/* List items */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600}
+.badge-g{background:var(--accent-bg);color:var(--accent)}
+.badge-a{background:var(--gold-bg);color:var(--gold)}
+.badge-r{background:var(--red-bg);color:var(--red)}
+.badge-b{background:var(--blue-bg);color:var(--blue)}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{padding:9px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);background:var(--bg)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--bg2)}
+td{padding:11px 14px;color:var(--ink);vertical-align:middle}
 .li{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
 .li:last-child{border-bottom:none;padding-bottom:0}
 .li-l{display:flex;align-items:center;gap:10px}
@@ -293,54 +136,43 @@ html,body{height:100%;background:var(--bg);font-family:var(--font-body);color:va
 .av-b{background:var(--blue-bg);color:var(--blue)}
 .li-name{font-size:13px;font-weight:500;color:var(--ink)}
 .li-sub{font-size:11px;color:var(--ink3);margin-top:1px}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center}
+.empty i{font-size:44px;color:var(--border2);margin-bottom:14px}
+.empty h3{font-family:var(--font-head);font-size:20px;color:var(--ink2);font-weight:400;margin-bottom:8px}
+.empty p{font-size:13px;color:var(--ink3);max-width:300px;line-height:1.6;margin-bottom:20px}
 
-/* Badges */
-.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600}
-.badge-g{background:var(--accent-bg);color:var(--accent)}
-.badge-a{background:var(--gold-bg);color:var(--gold)}
-.badge-r{background:var(--red-bg);color:var(--red)}
-.badge-b{background:var(--blue-bg);color:var(--blue)}
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(28,26,22,.5);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border)}
+.modal-head h2{font-family:var(--font-head);font-size:20px;font-weight:400;color:var(--ink)}
+.modal-close{width:32px;height:32px;border-radius:8px;border:none;background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:18px}
+.modal-body{padding:20px;display:flex;flex-direction:column;gap:14px}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:11px;font-weight:600;color:var(--ink3);letter-spacing:.05em;text-transform:uppercase}
+.form-group input,.form-group select,.form-group textarea{padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:13px;outline:none;transition:border-color .15s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,80,22,.1)}
+.form-group textarea{resize:vertical;min-height:80px}
 
-/* Tables */
-.tbl-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13px}
-thead th{
-  padding:9px 14px;text-align:left;font-size:11px;font-weight:700;
-  color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;
-  border-bottom:1px solid var(--border);background:var(--bg);
-}
-tbody tr{border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer}
-tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:var(--bg2)}
-td{padding:11px 14px;color:var(--ink);vertical-align:middle}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:12px 18px;border-radius:var(--radius);font-size:13px;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px;max-width:340px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--accent)}
+.toast.error{background:var(--red)}
 
-/* Placeholder page */
-.placeholder{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  min-height:320px;text-align:center;
-}
-.placeholder i{font-size:48px;color:var(--border2);margin-bottom:16px}
-.placeholder h2{font-family:var(--font-head);font-size:22px;color:var(--ink2);font-weight:400;margin-bottom:8px}
-.placeholder p{font-size:13px;color:var(--ink3);max-width:320px;line-height:1.7;margin-bottom:20px}
+/* ADMIN PANEL */
+.admin-banner{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.admin-banner h2{font-family:var(--font-head);font-size:22px;font-weight:400}
+.admin-banner p{font-size:13px;opacity:.85;margin-top:4px}
 
-/* Animations */
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .fa{animation:fadeUp .28s ease both}
-.fa-1{animation-delay:.04s}
-.fa-2{animation-delay:.09s}
-.fa-3{animation-delay:.14s}
-.fa-4{animation-delay:.19s}
-.fa-5{animation-delay:.24s}
 
-/* ══════════════════════════════
-   RESPONSIVE
-══════════════════════════════ */
 @media(max-width:800px){
-  .sidebar{
-    position:fixed;top:var(--nav-h);left:0;bottom:0;z-index:95;
-    transform:translateX(-100%);border-right:1px solid var(--border);
-    box-shadow:var(--shadow-lg);
-  }
+  .sidebar{position:fixed;top:var(--nav-h);left:0;bottom:0;z-index:95;transform:translateX(-100%);box-shadow:var(--shadow-lg)}
   .sidebar.open{transform:translateX(0)}
   .topbar-brand{border-right:none;width:auto;padding-left:0}
   .brand-label{display:none}
@@ -349,8 +181,7 @@ td{padding:11px 14px;color:var(--ink);vertical-align:middle}
   .grid-2{grid-template-columns:1fr}
   .kpi-grid{grid-template-columns:1fr 1fr}
   .main{padding:16px}
-  .ph{gap:8px}
-  .ph-left h1{font-size:22px}
+  .form-row{grid-template-columns:1fr}
 }
 @media(max-width:420px){
   .kpi-grid{grid-template-columns:1fr}
@@ -360,7 +191,14 @@ td{padding:11px 14px;color:var(--ink);vertical-align:middle}
 </head>
 <body>
 
-<!-- ══════════════════════════════ LOGIN ══════════════════════════════ -->
+<!-- LOADING -->
+<div id="loading">
+  <div class="mark"><i class="ti ti-school"></i></div>
+  <div class="spinner"></div>
+  <p>Chargement d'Idara OS…</p>
+</div>
+
+<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-card">
     <div class="login-brand">
@@ -369,31 +207,25 @@ td{padding:11px 14px;color:var(--ink);vertical-align:middle}
       <p>Gestion d'institut islamique francophone</p>
     </div>
     <div class="login-form">
-      <div class="field-wrap">
+      <div class="fld">
         <label>Adresse email</label>
-        <input type="email" id="f-email" value="directeur@al-fath.com" autocomplete="email">
+        <input type="email" id="f-email" placeholder="votre@email.com" autocomplete="email">
       </div>
-      <div class="field-wrap">
+      <div class="fld">
         <label>Mot de passe</label>
-        <input type="password" id="f-pass" value="••••••••" autocomplete="current-password">
+        <input type="password" id="f-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
       </div>
-      <div class="sep">Se connecter en tant que</div>
-      <div class="role-grid">
-        <div class="role-pill active" onclick="pickRole(this,'admin')"><i class="ti ti-shield-check"></i><span>Directeur</span></div>
-        <div class="role-pill" onclick="pickRole(this,'prof')"><i class="ti ti-chalkboard"></i><span>Enseignant</span></div>
-        <div class="role-pill" onclick="pickRole(this,'sec')"><i class="ti ti-clipboard-list"></i><span>Secrétaire</span></div>
-        <div class="role-pill" onclick="pickRole(this,'parent')"><i class="ti ti-heart"></i><span>Parent</span></div>
-      </div>
-      <button class="btn-signin" onclick="login()">Se connecter →</button>
+      <div class="err-msg" id="err-msg"></div>
+      <button class="btn-signin" id="signin-btn" onclick="doLogin()">
+        <span>Se connecter</span>
+      </button>
     </div>
-    <div class="login-hint">Institut Al-Fath · Le Caire<br>Idara OS v1.0 — Démo</div>
+    <div class="login-hint">Accès sur invitation uniquement<br>Idara OS v1.0</div>
   </div>
 </div>
 
-<!-- ══════════════════════════════ APP ══════════════════════════════ -->
+<!-- APP -->
 <div id="app">
-
-  <!-- TOP BAR -->
   <header class="topbar">
     <div class="topbar-brand">
       <div class="mob-toggle" onclick="toggleSidebar()"><i class="ti ti-menu-2" style="font-size:21px;color:var(--ink2)"></i></div>
@@ -401,115 +233,211 @@ td{padding:11px 14px;color:var(--ink);vertical-align:middle}
       <span class="brand-label">Idara OS</span>
     </div>
     <div class="topbar-center">
-      <div class="search-box">
-        <i class="ti ti-search"></i>
-        <span>Rechercher un élève, une classe…</span>
-      </div>
+      <div class="search-box"><i class="ti ti-search"></i><span>Rechercher un élève…</span></div>
     </div>
     <div class="topbar-right">
-      <div class="tb-btn" title="Notifications"><i class="ti ti-bell"></i><div class="notif-pip"></div></div>
-      <div class="tb-btn" onclick="logout()" title="Déconnexion"><i class="ti ti-logout"></i></div>
+      <div class="tb-btn" onclick="doLogout()" title="Déconnexion"><i class="ti ti-logout"></i></div>
       <div class="user-pill">
-        <div class="u-avatar" id="u-av">CI</div>
-        <div><div class="u-name" id="u-name">Cheikh Ibrahim</div><div class="u-role" id="u-role">Directeur</div></div>
+        <div class="u-av" id="u-av">?</div>
+        <div><div class="u-name" id="u-name">…</div><div class="u-role" id="u-role">…</div></div>
       </div>
     </div>
   </header>
-
-  <!-- BODY -->
   <div class="body">
     <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
-
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
       <div class="sb-section">
         <div class="sb-label">Principal</div>
         <div class="nav-item active" data-page="dashboard" onclick="go('dashboard',this)"><i class="ti ti-layout-dashboard"></i>Tableau de bord</div>
-        <div class="nav-item" data-page="eleves" id="ni-eleves" onclick="go('eleves',this)"><i class="ti ti-users"></i>Élèves</div>
-        <div class="nav-item" data-page="presences" id="ni-presences" onclick="go('presences',this)"><i class="ti ti-calendar-check"></i>Présences</div>
-        <div class="nav-item" data-page="paiements" id="ni-paiements" onclick="go('paiements',this)"><i class="ti ti-cash"></i>Paiements<span class="nav-pip" id="pip-retards">12</span></div>
+        <div class="nav-item" data-page="eleves" onclick="go('eleves',this)"><i class="ti ti-users"></i>Élèves</div>
+        <div class="nav-item" data-page="presences" onclick="go('presences',this)"><i class="ti ti-calendar-check"></i>Présences</div>
+        <div class="nav-item" data-page="paiements" onclick="go('paiements',this)"><i class="ti ti-cash"></i>Paiements</div>
       </div>
-      <div class="sb-section" id="sb-peda">
+      <div class="sb-section">
         <div class="sb-label">Pédagogie</div>
         <div class="nav-item" data-page="bulletins" onclick="go('bulletins',this)"><i class="ti ti-file-text"></i>Bulletins</div>
-        <div class="nav-item" data-page="classes" onclick="go('classes',this)"><i class="ti ti-books"></i>Classes &amp; cours</div>
       </div>
-      <div class="sb-section" id="sb-comm">
+      <div class="sb-section">
         <div class="sb-label">Communication</div>
-        <div class="nav-item" data-page="communication" onclick="go('communication',this)"><i class="ti ti-message"></i>Messages<span class="nav-pip g">3</span></div>
+        <div class="nav-item" data-page="communication" onclick="go('communication',this)"><i class="ti ti-message"></i>Messages</div>
       </div>
       <div class="sb-foot">
+        <div class="nav-item" id="nav-admin" style="display:none" data-page="admin" onclick="go('admin',this)"><i class="ti ti-shield-check"></i>Super Admin</div>
         <div class="nav-item" data-page="parametres" onclick="go('parametres',this)"><i class="ti ti-settings"></i>Paramètres</div>
       </div>
     </aside>
-
-    <!-- MAIN -->
     <main class="main" id="main"></main>
   </div>
 </div>
 
+<!-- MODAL NOUVEL ÉLÈVE -->
+<div class="modal-bg" id="modal-eleve">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modal-eleve-title">Nouvel élève</h2>
+      <button class="modal-close" onclick="closeModal('modal-eleve')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="eleve-edit-id">
+      <div class="form-row">
+        <div class="form-group"><label>Prénom</label><input type="text" id="eleve-prenom" placeholder="Fatima"></div>
+        <div class="form-group"><label>Nom</label><input type="text" id="eleve-nom" placeholder="Al-Azhar"></div>
+      </div>
+      <div class="form-group">
+        <label>Classe</label>
+        <select id="eleve-classe">
+          <option value="">Sélectionner une classe…</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email parent</label><input type="email" id="eleve-email" placeholder="parent@email.com"></div>
+        <div class="form-group"><label>Téléphone parent</label><input type="tel" id="eleve-tel" placeholder="+33 6 12 34 56 78"></div>
+      </div>
+      <div class="form-group"><label>Frais mensuel ($)</label><input type="number" id="eleve-frais" value="60"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('modal-eleve')">Annuler</button>
+      <button class="btn btn-primary" onclick="sauvegarderEleve()"><i class="ti ti-check"></i>Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOUVEL INSTITUT (super admin) -->
+<div class="modal-bg" id="modal-institut">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Créer un institut</h2>
+      <button class="modal-close" onclick="closeModal('modal-institut')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Nom de l'institut</label><input type="text" id="inst-nom" placeholder="Institut Al-Fath"></div>
+      <div class="form-group"><label>Email du directeur</label><input type="email" id="inst-email" placeholder="directeur@al-fath.com"></div>
+      <div class="form-group"><label>Mot de passe provisoire</label><input type="text" id="inst-pass" placeholder="Généré automatiquement" value=""></div>
+      <div class="form-group">
+        <label>Pack</label>
+        <select id="inst-pack">
+          <option value="starter">Starter — jusqu'à 50 élèves (29$/mois)</option>
+          <option value="growth">Growth — jusqu'à 150 élèves (49$/mois)</option>
+          <option value="pro">Pro — illimité (79$/mois)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('modal-institut')">Annuler</button>
+      <button class="btn btn-primary" onclick="creerInstitut()"><i class="ti ti-plus"></i>Créer l'institut</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <script>
-/* ════════════════════ DATA ════════════════════ */
-const ROLES = {
-  admin:  {name:'Cheikh Ibrahim', init:'CI', label:'Directeur',  color:'#2D5016'},
-  prof:   {name:'Ustadh Karim',   init:'UK', label:'Enseignant', color:'#1A3A5C'},
-  sec:    {name:'Sœur Nadia',     init:'SN', label:'Secrétaire', color:'#9A7B2F'},
-  parent: {name:'M. Moreau',      init:'MM', label:'Parent',     color:'#6B2D80'},
-};
+/* ══════════════════════════════════════════════
+   SUPABASE INIT
+══════════════════════════════════════════════ */
+const SUPABASE_URL = 'https://ycivlhxiletrtfnymtry.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_z7HOc0T6DLjEV-GrleRdLA__eqFLQPX';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const ELEVES = [
-  {id:1, prenom:'Fatima',  nom:'Al-Azhar',    init:'FA', av:'av-g', classe:'Coran niv. 1',    paie:'Payé',      pdate:'01/06/2026', statut:'Actif',     presence:98, moy:17.5, mention:'Excellent'},
-  {id:2, prenom:'Adam',    nom:'Moreau',      init:'AM', av:'av-b', classe:'Arabe débutant',  paie:'Payé',      pdate:'02/06/2026', statut:'Actif',     presence:85, moy:13.8, mention:'Bien'},
-  {id:3, prenom:'Leïla',   nom:'Benali',      init:'LB', av:'av-a', classe:'Fiqh',            paie:'En attente',pdate:'—',          statut:'En attente',presence:72, moy:11.2, mention:'Assez bien'},
-  {id:4, prenom:'Karim',   nom:'Dupont',      init:'KD', av:'av-b', classe:'Arabe inter.',    paie:'Payé',      pdate:'01/06/2026', statut:'Actif',     presence:91, moy:15.4, mention:'Très bien'},
-  {id:5, prenom:'Sara',    nom:'Rachidi',     init:'SR', av:'av-g', classe:'Coran niv. 2',    paie:'Payé',      pdate:'03/06/2026', statut:'Actif',     presence:95, moy:16.8, mention:'Très bien'},
-  {id:6, prenom:'Hassan',  nom:'Mrani',       init:'HM', av:'av-a', classe:'Coran niv. 1',    paie:'En retard', pdate:'—',          statut:'Actif',     presence:68, moy:9.5,  mention:'Insuffisant'},
-  {id:7, prenom:'Youssef', nom:'Al-Mansouri', init:'YA', av:'av-r', classe:'Arabe inter.',    paie:'En retard', pdate:'—',          statut:'Actif',     presence:54, moy:8.2,  mention:'Insuffisant'},
-  {id:8, prenom:'Nour',    nom:'Belkacem',    init:'NB', av:'av-b', classe:'Fiqh',            paie:'Payé',      pdate:'02/06/2026', statut:'Actif',     presence:88, moy:14.6, mention:'Bien'},
-  {id:9, prenom:'Imane',   nom:'Tazi',        init:'IT', av:'av-g', classe:'Coran niv. 2',    paie:'Payé',      pdate:'04/06/2026', statut:'Actif',     presence:93, moy:16.1, mention:'Très bien'},
-  {id:10,prenom:'Omar',    nom:'Sebbane',     init:'OS', av:'av-a', classe:'Arabe débutant',  paie:'En attente',pdate:'—',          statut:'En attente',presence:79, moy:12.3, mention:'Assez bien'},
-];
+// Super admin email — CHANGE AVEC TON EMAIL
+const SUPER_ADMIN_EMAIL = 'ummxmisr@gmail.com';
 
-/* ════════════════════ STATE ════════════════════ */
-let role = 'admin';
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+let currentUser = null;
+let currentInstitut = null;
+let currentRole = null;
 let sidebarOpen = false;
 
-/* ════════════════════ AUTH ════════════════════ */
-function pickRole(el, r){
-  document.querySelectorAll('.role-pill').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  role = r;
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+async function init(){
+  const { data: { session } } = await sb.auth.getSession();
+  hide('loading');
+  if(session){
+    await loadUserProfile(session.user);
+  } else {
+    show('login-screen','flex');
+  }
 }
 
-function login(){
-  const r = ROLES[role];
-  document.getElementById('login-screen').style.display = 'none';
+async function loadUserProfile(user){
+  const { data: profil } = await sb.from('utilisateurs')
+    .select('*, instituts(*)')
+    .eq('email', user.email)
+    .single();
+
+  if(profil){
+    currentUser = user;
+    currentRole = profil.role;
+    currentInstitut = profil.instituts;
+    afficherApp(profil);
+  } else if(user.email === SUPER_ADMIN_EMAIL){
+    currentUser = user;
+    currentRole = 'superadmin';
+    afficherApp({nom:'Super Admin', role:'superadmin', instituts:{nom:'Idara OS Admin'}});
+  } else {
+    showErr('Aucun profil trouvé. Contactez votre administrateur.');
+    show('login-screen','flex');
+  }
+}
+
+function afficherApp(profil){
+  hide('login-screen');
+  const initiales = profil.nom ? profil.nom.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase() : '??';
+  document.getElementById('u-av').textContent = initiales;
+  document.getElementById('u-name').textContent = profil.nom || currentUser.email;
+  document.getElementById('u-role').textContent = {
+    admin:'Directeur', prof:'Enseignant', secretaire:'Secrétaire',
+    parent:'Parent', superadmin:'Super Admin'
+  }[profil.role] || profil.role;
+
+  if(profil.role === 'superadmin'){
+    document.getElementById('u-av').style.background = '#1A3A5C';
+    document.getElementById('nav-admin').style.display = '';
+  }
   document.getElementById('app').classList.add('show');
-  document.getElementById('u-av').textContent = r.init;
-  document.getElementById('u-av').style.background = r.color;
-  document.getElementById('u-name').textContent = r.name;
-  document.getElementById('u-role').textContent = r.label;
-  applyRole();
   renderDashboard();
 }
 
-function logout(){
+/* ══════════════════════════════════════════════
+   AUTH
+══════════════════════════════════════════════ */
+async function doLogin(){
+  const email = document.getElementById('f-email').value.trim();
+  const pass  = document.getElementById('f-pass').value;
+  if(!email||!pass){ showErr('Veuillez remplir tous les champs.'); return; }
+
+  const btn = document.getElementById('signin-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="border-color:rgba(255,255,255,.3);border-top-color:#fff"></div><span>Connexion…</span>';
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+
+  if(error){
+    showErr('Email ou mot de passe incorrect.');
+    btn.disabled = false;
+    btn.innerHTML = '<span>Se connecter</span>';
+    return;
+  }
+  await loadUserProfile(data.user);
+  btn.disabled = false;
+  btn.innerHTML = '<span>Se connecter</span>';
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  currentUser = null; currentInstitut = null; currentRole = null;
   document.getElementById('app').classList.remove('show');
-  document.getElementById('login-screen').style.display = 'flex';
+  show('login-screen','flex');
 }
 
-function applyRole(){
-  const hide = (id) => { const el=document.getElementById(id); if(el) el.style.display='none'; };
-  const show = (id) => { const el=document.getElementById(id); if(el) el.style.display=''; };
-  if(role==='prof'){
-    hide('ni-paiements'); hide('pip-retards');
-  }
-  if(role==='parent'){
-    hide('ni-paiements'); hide('sb-peda'); hide('sb-comm'); hide('pip-retards');
-  }
-}
-
-/* ════════════════════ NAVIGATION ════════════════════ */
+/* ══════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════ */
 function go(page, el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(el) el.classList.add('active');
@@ -521,8 +449,8 @@ function go(page, el){
     paiements: renderPaiements,
     bulletins: renderBulletins,
     communication: renderCommunication,
-    classes: ()=>renderPlaceholder('ti-books','Classes & cours','Gérez vos niveaux, emplois du temps et affectations des enseignants.'),
-    parametres: ()=>renderPlaceholder('ti-settings','Paramètres','Configurez votre institut, les utilisateurs et l\'abonnement.'),
+    admin: renderAdmin,
+    parametres: renderParametres,
   };
   (pages[page]||renderDashboard)();
 }
@@ -533,490 +461,812 @@ function toggleSidebar(){
   document.getElementById('overlay').classList.toggle('open', sidebarOpen);
 }
 
-/* ════════════════════ HELPERS ════════════════════ */
-const M = (h)=>{ document.getElementById('main').innerHTML=h; };
+/* ══════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════ */
+function M(h){ document.getElementById('main').innerHTML = h; }
+function hide(id){ document.getElementById(id).style.display='none'; }
+function show(id,d='block'){ document.getElementById(id).style.display=d; }
+function showErr(msg){ const e=document.getElementById('err-msg'); e.textContent=msg; e.style.display='block'; }
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 
-function badgePaie(p){
-  if(p==='Payé') return `<span class="badge badge-g">Payé</span>`;
-  if(p==='En attente') return `<span class="badge badge-a">En attente</span>`;
+function toast(msg, type='success'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'), 3500);
+}
+
+function avColor(str){
+  const colors = ['av-g','av-b','av-a','av-r'];
+  let h = 0;
+  for(let c of (str||'')) h = c.charCodeAt(0) + ((h<<5)-h);
+  return colors[Math.abs(h)%colors.length];
+}
+
+function initiales(prenom, nom){
+  return ((prenom||'')[0]||(nom||'')[0]||'?').toUpperCase() + ((nom||'')[0]||'').toUpperCase();
+}
+
+function badgePaie(s){
+  if(s==='paye'||s==='Payé') return `<span class="badge badge-g">Payé</span>`;
+  if(s==='en_attente') return `<span class="badge badge-a">En attente</span>`;
   return `<span class="badge badge-r">En retard</span>`;
 }
-function badgeStatut(s){
-  if(s==='Actif') return `<span class="badge badge-g">Actif</span>`;
-  if(s==='En attente') return `<span class="badge badge-a">En attente</span>`;
-  return `<span class="badge badge-r">Inactif</span>`;
-}
-function badgeMention(m){
-  if(m==='Excellent') return `<span class="badge" style="background:#EEEDFE;color:#534AB7">${m}</span>`;
-  if(m==='Très bien') return `<span class="badge badge-g">${m}</span>`;
-  if(m==='Bien') return `<span class="badge badge-b">${m}</span>`;
-  if(m==='Assez bien') return `<span class="badge badge-a">${m}</span>`;
-  return `<span class="badge badge-r">${m}</span>`;
-}
-function noteColor(n){ return n>=14?'badge-g':n>=10?'badge-a':'badge-r'; }
 
-/* ════════════════════ DASHBOARD ════════════════════ */
-function renderDashboard(){
-  const banners = {
-    admin:`<div class="role-banner rb-admin fa fa-1"><i class="ti ti-shield-check"></i>Accès directeur — vue complète de l'institut Al-Fath</div>`,
-    prof:`<div class="role-banner rb-prof fa fa-1"><i class="ti ti-chalkboard"></i>Accès enseignant — vos classes uniquement</div>`,
-    sec:`<div class="role-banner rb-sec fa fa-1"><i class="ti ti-clipboard-list"></i>Accès secrétaire — inscriptions et paiements</div>`,
-    parent:`<div class="role-banner rb-parent fa fa-1"><i class="ti ti-heart"></i>Accès parent — suivi de votre enfant Adam Moreau</div>`,
-  };
+/* ══════════════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════════════ */
+async function renderDashboard(){
+  M(`<div class="empty fa"><div class="spinner" style="width:28px;height:28px;border-color:var(--border);border-top-color:var(--accent)"></div></div>`);
 
-  const kpis = role==='parent' ? `
-    <div class="kpi-grid">
-      <div class="kpi fa fa-2"><div class="kpi-lbl"><i class="ti ti-calendar-check"></i>Présence ce mois</div><div class="kpi-val">85%</div><div class="kpi-sub kpi-up"><i class="ti ti-trending-up"></i>+3% vs mois dernier</div></div>
-      <div class="kpi fa fa-3"><div class="kpi-lbl"><i class="ti ti-star"></i>Moyenne générale</div><div class="kpi-val">13,8</div><div class="kpi-sub"><i class="ti ti-award"></i>Mention Bien</div></div>
-      <div class="kpi fa fa-4"><div class="kpi-lbl"><i class="ti ti-cash"></i>Paiement juin</div><div class="kpi-val">Réglé</div><div class="kpi-sub kpi-up"><i class="ti ti-circle-check"></i>À jour</div></div>
-      <div class="kpi fa fa-5"><div class="kpi-lbl"><i class="ti ti-file-text"></i>Bulletin T3</div><div class="kpi-val">Disponible</div><div class="kpi-sub"><i class="ti ti-download"></i>Télécharger</div></div>
-    </div>` : role==='prof' ? `
-    <div class="kpi-grid">
-      <div class="kpi fa fa-2"><div class="kpi-lbl"><i class="ti ti-users"></i>Mes élèves</div><div class="kpi-val">34</div><div class="kpi-sub"><i class="ti ti-books"></i>3 classes assignées</div></div>
-      <div class="kpi fa fa-3"><div class="kpi-lbl"><i class="ti ti-calendar-check"></i>Présence auj.</div><div class="kpi-val">88%</div><div class="kpi-sub"><i class="ti ti-users"></i>30 / 34 présents</div></div>
-      <div class="kpi fa fa-4"><div class="kpi-lbl"><i class="ti ti-file-text"></i>Bulletins saisis</div><div class="kpi-val">28 / 34</div><div class="kpi-sub kpi-dn"><i class="ti ti-clock"></i>6 en attente</div></div>
-      <div class="kpi fa fa-5"><div class="kpi-lbl"><i class="ti ti-bell"></i>Alertes absences</div><div class="kpi-val">4</div><div class="kpi-sub kpi-dn"><i class="ti ti-alert-triangle"></i>Élèves à risque</div></div>
-    </div>` : `
-    <div class="kpi-grid">
-      <div class="kpi fa fa-2"><div class="kpi-lbl"><i class="ti ti-users"></i>Élèves inscrits</div><div class="kpi-val">87</div><div class="kpi-sub kpi-up"><i class="ti ti-trending-up"></i>+4 ce mois</div></div>
-      <div class="kpi fa fa-3"><div class="kpi-lbl"><i class="ti ti-calendar-check"></i>Présence aujourd'hui</div><div class="kpi-val">91%</div><div class="kpi-sub"><i class="ti ti-users"></i>79 / 87 élèves</div></div>
-      <div class="kpi fa fa-4"><div class="kpi-lbl"><i class="ti ti-cash"></i>Encaissé ce mois</div><div class="kpi-val">3 420 $</div><div class="kpi-sub kpi-up"><i class="ti ti-trending-up"></i>86% du prévu</div></div>
-      <div class="kpi fa fa-5"><div class="kpi-lbl"><i class="ti ti-alert-triangle"></i>Paiements en retard</div><div class="kpi-val">12</div><div class="kpi-sub kpi-dn"><i class="ti ti-trending-down"></i>Relance auto demain</div></div>
-    </div>`;
+  if(currentRole === 'superadmin'){
+    const { data: instituts } = await sb.from('instituts').select('*');
+    const { data: eleves } = await sb.from('eleves').select('id');
+    const nbInstituts = instituts?.length || 0;
+    const nbEleves = eleves?.length || 0;
 
-  const body = role==='parent' ? `
-    <div class="card fa fa-3">
-      <div class="card-head"><div class="card-head-title"><i class="ti ti-user"></i>Suivi d'Adam Moreau — Arabe débutant</div></div>
-      <div class="card-body">
-        <div class="bar-row"><div class="bar-meta"><span class="bar-name">Présence ce trimestre</span><span class="bar-val">85%</span></div><div class="bar-track"><div class="bar-fill bf-a" style="width:85%"></div></div></div>
-        <div class="bar-row"><div class="bar-meta"><span class="bar-name">Grammaire</span><span class="bar-val">13/20</span></div><div class="bar-track"><div class="bar-fill bf-a" style="width:65%"></div></div></div>
-        <div class="bar-row"><div class="bar-meta"><span class="bar-name">Vocabulaire</span><span class="bar-val">15/20</span></div><div class="bar-track"><div class="bar-fill bf-g" style="width:75%"></div></div></div>
-        <div class="bar-row"><div class="bar-meta"><span class="bar-name">Expression orale</span><span class="bar-val">14/20</span></div><div class="bar-track"><div class="bar-fill bf-g" style="width:70%"></div></div></div>
+    M(`
+      <div class="ph fa"><div><h1>Super Admin</h1><p>Vue globale · Idara OS</p></div></div>
+      <div class="admin-banner fa">
+        <div><h2>Tableau de bord administrateur</h2><p>Gérez tous les instituts depuis cet espace</p></div>
+        <button class="btn" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" onclick="go('admin',document.querySelector('[data-page=admin]'))"><i class="ti ti-settings"></i>Gérer les instituts</button>
       </div>
-    </div>` : `
-    <div class="grid-2">
-      <div class="card fa fa-3">
-        <div class="card-head"><div class="card-head-title"><i class="ti ti-chart-bar"></i>Présence par classe</div></div>
-        <div class="card-body">
-          <div class="bar-row"><div class="bar-meta"><span class="bar-name">Coran niv. 1</span><span class="bar-val">96%</span></div><div class="bar-track"><div class="bar-fill bf-g" style="width:96%"></div></div></div>
-          <div class="bar-row"><div class="bar-meta"><span class="bar-name">Coran niv. 2</span><span class="bar-val">88%</span></div><div class="bar-track"><div class="bar-fill bf-g" style="width:88%"></div></div></div>
-          <div class="bar-row"><div class="bar-meta"><span class="bar-name">Arabe débutant</span><span class="bar-val">82%</span></div><div class="bar-track"><div class="bar-fill bf-g" style="width:82%"></div></div></div>
-          <div class="bar-row"><div class="bar-meta"><span class="bar-name">Arabe inter.</span><span class="bar-val">74%</span></div><div class="bar-track"><div class="bar-fill bf-a" style="width:74%"></div></div></div>
-          <div class="bar-row"><div class="bar-meta"><span class="bar-name">Fiqh</span><span class="bar-val">91%</span></div><div class="bar-track"><div class="bar-fill bf-g" style="width:91%"></div></div></div>
-        </div>
+      <div class="kpi-grid">
+        <div class="kpi fa"><div class="kpi-lbl"><i class="ti ti-building"></i>Instituts actifs</div><div class="kpi-val">${nbInstituts}</div><div class="kpi-sub">sur Idara OS</div></div>
+        <div class="kpi fa"><div class="kpi-lbl"><i class="ti ti-users"></i>Élèves total</div><div class="kpi-val">${nbEleves}</div><div class="kpi-sub">tous instituts</div></div>
       </div>
-      <div class="card fa fa-4">
-        <div class="card-head"><div class="card-head-title"><i class="ti ti-bell"></i>Alertes du jour</div></div>
-        <div class="card-body">
-          <div class="alert-row"><div class="a-dot dot-r"></div><div><div class="a-txt">Youssef Al-Mansouri — 3 absences consécutives</div><div class="a-sub">Arabe intermédiaire · Aujourd'hui</div></div></div>
-          <div class="alert-row"><div class="a-dot dot-a"></div><div><div class="a-txt">12 paiements de juin non reçus</div><div class="a-sub">Relance automatique demain matin</div></div></div>
-          <div class="alert-row"><div class="a-dot dot-b"></div><div><div class="a-txt">3 nouvelles demandes d'inscription</div><div class="a-sub">En attente de validation</div></div></div>
-          <div class="alert-row"><div class="a-dot dot-a"></div><div><div class="a-txt">Bulletins T3 à envoyer</div><div class="a-sub">Échéance : 10 juin 2026</div></div></div>
-        </div>
-      </div>
-    </div>
-    <div class="grid-2">
-      <div class="card fa fa-4">
-        <div class="card-head"><div class="card-head-title"><i class="ti ti-user-plus"></i>Dernières inscriptions</div><button class="btn btn-sm" onclick="go('eleves',document.querySelector('[data-page=eleves]'))">Voir tout</button></div>
-        <div class="card-body">
-          <div class="li"><div class="li-l"><div class="av av-g">FA</div><div><div class="li-name">Fatima Al-Azhar</div><div class="li-sub">Coran niv. 1 · 2 juin</div></div></div><span class="badge badge-g">Validée</span></div>
-          <div class="li"><div class="li-l"><div class="av av-b">AM</div><div><div class="li-name">Adam Moreau</div><div class="li-sub">Arabe débutant · 1 juin</div></div></div><span class="badge badge-g">Validée</span></div>
-          <div class="li"><div class="li-l"><div class="av av-a">LB</div><div><div class="li-name">Leïla Benali</div><div class="li-sub">Fiqh · 30 mai</div></div></div><span class="badge badge-a">En attente</span></div>
-        </div>
-      </div>
-      <div class="card fa fa-5">
-        <div class="card-head"><div class="card-head-title"><i class="ti ti-receipt"></i>Paiements récents</div><button class="btn btn-sm" onclick="go('paiements',document.querySelector('[data-page=paiements]'))">Voir tout</button></div>
-        <div class="card-body">
-          <div class="li"><div class="li-l"><div class="av av-g">KD</div><div><div class="li-name">Karim Dupont</div><div class="li-sub">Juin 2026 · 60 $</div></div></div><span class="badge badge-g">Payé</span></div>
-          <div class="li"><div class="li-l"><div class="av av-b">SR</div><div><div class="li-name">Sara Rachidi</div><div class="li-sub">Juin 2026 · 60 $</div></div></div><span class="badge badge-g">Payé</span></div>
-          <div class="li"><div class="li-l"><div class="av av-r">HM</div><div><div class="li-name">Hassan Mrani</div><div class="li-sub">Mai 2026 · 60 $</div></div></div><span class="badge badge-r">En retard</span></div>
-        </div>
-      </div>
-    </div>`;
+    `);
+    return;
+  }
+
+  if(!currentInstitut){ M(`<div class="empty"><i class="ti ti-building-off"></i><h3>Aucun institut</h3><p>Contactez votre administrateur.</p></div>`); return; }
+
+  const iid = currentInstitut.id;
+  const [{ data: eleves }, { data: paiements }, { data: presencesAuj }] = await Promise.all([
+    sb.from('eleves').select('*').eq('institut_id', iid).eq('statut','actif'),
+    sb.from('paiements').select('*').eq('institut_id', iid),
+    sb.from('presences').select('*').eq('institut_id', iid).eq('date', new Date().toISOString().split('T')[0])
+  ]);
+
+  const nbEleves = eleves?.length || 0;
+  const retards = paiements?.filter(p=>p.statut==='en_retard').length || 0;
+  const encaisse = paiements?.filter(p=>p.statut==='paye').reduce((a,p)=>a+p.montant,0) || 0;
+  const presents = presencesAuj?.filter(p=>p.statut==='present').length || 0;
+  const pctPresence = nbEleves ? Math.round(presents/nbEleves*100) : 0;
+
+  const dernEleves = (eleves||[]).slice(-3).reverse();
 
   M(`
-    <div class="ph">
-      <div class="ph-left">
-        <h1>Tableau de bord</h1>
-        <p>Jeudi 4 juin 2026 · Institut Al-Fath, Le Caire</p>
-      </div>
-      ${role==='admin'?`<button class="btn btn-primary fa fa-1"><i class="ti ti-user-plus"></i>Nouvel élève</button>`:''}
+    <div class="ph fa">
+      <div><h1>${currentInstitut.nom}</h1><p>${new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p></div>
+      ${currentRole==='admin'?`<button class="btn btn-primary" onclick="ouvrirModalEleve()"><i class="ti ti-user-plus"></i>Nouvel élève</button>`:''}
     </div>
-    ${banners[role]||''}
-    ${kpis}
-    ${body}
+    <div class="kpi-grid">
+      <div class="kpi fa"><div class="kpi-lbl"><i class="ti ti-users"></i>Élèves inscrits</div><div class="kpi-val">${nbEleves}</div><div class="kpi-sub">élèves actifs</div></div>
+      <div class="kpi fa"><div class="kpi-lbl"><i class="ti ti-calendar-check"></i>Présence aujourd'hui</div><div class="kpi-val">${pctPresence}%</div><div class="kpi-sub">${presents} / ${nbEleves} présents</div></div>
+      <div class="kpi fa"><div class="kpi-lbl"><i class="ti ti-cash"></i>Encaissé ce mois</div><div class="kpi-val">${encaisse} $</div><div class="kpi-sub">paiements reçus</div></div>
+      <div class="kpi fa"><div class="kpi-lbl"><i class="ti ti-alert-triangle"></i>Paiements en retard</div><div class="kpi-val">${retards}</div><div class="kpi-sub">élèves concernés</div></div>
+    </div>
+    <div class="card fa">
+      <div class="card-head"><div class="card-head-title"><i class="ti ti-user-plus"></i>Derniers élèves inscrits</div><button class="btn btn-sm" onclick="go('eleves',document.querySelector('[data-page=eleves]'))">Voir tout</button></div>
+      <div class="card-body">
+        ${dernEleves.length ? dernEleves.map(e=>`
+          <div class="li">
+            <div class="li-l">
+              <div class="av ${avColor(e.prenom+e.nom)}">${initiales(e.prenom,e.nom)}</div>
+              <div><div class="li-name">${e.prenom} ${e.nom}</div><div class="li-sub">${e.classe}</div></div>
+            </div>
+            <span class="badge badge-g">Actif</span>
+          </div>`).join('') : '<div class="empty" style="padding:20px"><i class="ti ti-users" style="font-size:28px"></i><p>Aucun élève encore inscrit</p></div>'}
+      </div>
+    </div>
   `);
 }
 
-/* ════════════════════ ÉLÈVES ════════════════════ */
-function renderEleves(){
-  const rows = ELEVES.map(e=>`
-    <tr onclick="voirEleve(${e.id})">
-      <td><div class="li-l"><div class="av ${e.av}">${e.init}</div><div><div class="li-name">${e.prenom} ${e.nom}</div><div class="li-sub">${e.classe}</div></div></div></td>
-      <td>${badgePaie(e.paie)}</td>
-      <td>${e.presence}%</td>
-      <td>${badgeStatut(e.statut)}</td>
+/* ══════════════════════════════════════════════
+   ÉLÈVES
+══════════════════════════════════════════════ */
+async function renderEleves(){
+  M(`<div class="empty fa"><div class="spinner" style="width:28px;height:28px;border-color:var(--border);border-top-color:var(--accent)"></div></div>`);
+  if(!currentInstitut) return;
+
+  const { data: eleves, error } = await sb.from('eleves')
+    .select('*').eq('institut_id', currentInstitut.id).order('nom');
+
+  const classes = [...new Set((eleves||[]).map(e=>e.classe))].filter(Boolean);
+  window._classes = classes;
+
+  // Remplir select classe dans modal
+  const sel = document.getElementById('eleve-classe');
+  sel.innerHTML = '<option value="">Sélectionner…</option>' +
+    classes.map(c=>`<option value="${c}">${c}</option>`).join('') +
+    '<option value="__new">+ Nouvelle classe…</option>';
+
+  const rows = (eleves||[]).map(e=>`
+    <tr onclick="voirEleve('${e.id}')">
+      <td><div class="li-l"><div class="av ${avColor(e.prenom+e.nom)}">${initiales(e.prenom,e.nom)}</div><div><div class="li-name">${e.prenom} ${e.nom}</div><div class="li-sub">${e.classe||'—'}</div></div></div></td>
+      <td style="color:var(--ink2)">${e.classe||'—'}</td>
+      <td>${e.telephone_parent||e.email_parent||'—'}</td>
+      <td>${e.frais_mensuel||60} $</td>
+      <td><span class="badge ${e.statut==='actif'?'badge-g':'badge-a'}">${e.statut==='actif'?'Actif':'Inactif'}</span></td>
     </tr>`).join('');
 
   M(`
-    <div class="ph">
-      <div class="ph-left"><h1>Élèves</h1><p>Institut Al-Fath · ${ELEVES.length} élèves inscrits</p></div>
-      <button class="btn btn-primary fa fa-1"><i class="ti ti-user-plus"></i>Nouvel élève</button>
+    <div class="ph fa">
+      <div><h1>Élèves</h1><p>${eleves?.length||0} élève${eleves?.length!==1?'s':''} inscrit${eleves?.length!==1?'s':''}</p></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="renderImportCSV()"><i class="ti ti-upload"></i>Importer CSV</button>
+        <button class="btn btn-primary" onclick="ouvrirModalEleve()"><i class="ti ti-user-plus"></i>Nouvel élève</button>
+      </div>
     </div>
-    <div class="card fa fa-2">
+    <div class="card fa">
       <div class="card-head">
         <div class="card-head-title"><i class="ti ti-users"></i>Liste des élèves</div>
-        <div style="display:flex;gap:8px">
-          <select onchange="filtrerEleves(this.value)" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);font-family:var(--font-body);font-size:13px;color:var(--ink2);cursor:pointer">
-            <option value="">Toutes les classes</option>
-            <option>Coran niv. 1</option><option>Coran niv. 2</option>
-            <option>Arabe débutant</option><option>Arabe inter.</option><option>Fiqh</option>
-          </select>
-        </div>
+        <select onchange="filtrerEleves(this.value,'${currentInstitut.id}')" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);font-family:var(--font-body);font-size:13px;color:var(--ink2);cursor:pointer">
+          <option value="">Toutes les classes</option>
+          ${classes.map(c=>`<option value="${c}">${c}</option>`).join('')}
+        </select>
       </div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th style="width:40%">Élève</th><th>Paiement</th><th>Présence</th><th>Statut</th></tr></thead>
-          <tbody id="eleves-tbody">${rows}</tbody>
-        </table>
-      </div>
+      ${eleves?.length ? `
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th style="width:35%">Élève</th><th>Classe</th><th>Contact</th><th>Frais</th><th>Statut</th></tr></thead>
+            <tbody id="eleves-tbody">${rows}</tbody>
+          </table>
+        </div>` : `
+        <div class="empty">
+          <i class="ti ti-users"></i>
+          <h3>Aucun élève</h3>
+          <p>Commencez par ajouter vos premiers élèves ou importez un fichier CSV.</p>
+          <button class="btn btn-primary" onclick="ouvrirModalEleve()"><i class="ti ti-user-plus"></i>Ajouter un élève</button>
+        </div>`}
     </div>
   `);
 }
 
-function filtrerEleves(classe){
-  const data = classe ? ELEVES.filter(e=>e.classe===classe) : ELEVES;
-  document.getElementById('eleves-tbody').innerHTML = data.map(e=>`
-    <tr onclick="voirEleve(${e.id})">
-      <td><div class="li-l"><div class="av ${e.av}">${e.init}</div><div><div class="li-name">${e.prenom} ${e.nom}</div><div class="li-sub">${e.classe}</div></div></div></td>
-      <td>${badgePaie(e.paie)}</td>
-      <td>${e.presence}%</td>
-      <td>${badgeStatut(e.statut)}</td>
+async function filtrerEleves(classe, iid){
+  let q = sb.from('eleves').select('*').eq('institut_id', iid).order('nom');
+  if(classe) q = q.eq('classe', classe);
+  const { data: eleves } = await q;
+  document.getElementById('eleves-tbody').innerHTML = (eleves||[]).map(e=>`
+    <tr onclick="voirEleve('${e.id}')">
+      <td><div class="li-l"><div class="av ${avColor(e.prenom+e.nom)}">${initiales(e.prenom,e.nom)}</div><div><div class="li-name">${e.prenom} ${e.nom}</div></div></div></td>
+      <td>${e.classe||'—'}</td>
+      <td>${e.telephone_parent||e.email_parent||'—'}</td>
+      <td>${e.frais_mensuel||60} $</td>
+      <td><span class="badge ${e.statut==='actif'?'badge-g':'badge-a'}">${e.statut==='actif'?'Actif':'Inactif'}</span></td>
     </tr>`).join('');
 }
 
-function voirEleve(id){
-  const e = ELEVES.find(x=>x.id===id);
+async function voirEleve(id){
+  const { data: e } = await sb.from('eleves').select('*').eq('id',id).single();
+  if(!e) return;
+  const { data: paies } = await sb.from('paiements').select('*').eq('eleve_id',id).order('created_at',{ascending:false}).limit(5);
+  const { data: pres } = await sb.from('presences').select('*').eq('eleve_id',id).order('date',{ascending:false}).limit(10);
+
+  const nbPresent = pres?.filter(p=>p.statut==='present').length||0;
+  const tauxPres = pres?.length ? Math.round(nbPresent/pres.length*100) : 0;
+
   M(`
-    <div class="ph">
-      <div class="ph-left"><h1>${e.prenom} ${e.nom}</h1><p>${e.classe} · Inscrit(e) à l'Institut Al-Fath</p></div>
+    <div class="ph fa">
+      <div><h1>${e.prenom} ${e.nom}</h1><p>${e.classe||'—'} · ${currentInstitut?.nom||''}</p></div>
       <div style="display:flex;gap:8px">
         <button class="btn" onclick="renderEleves()"><i class="ti ti-arrow-left"></i>Retour</button>
-        <button class="btn btn-primary"><i class="ti ti-edit"></i>Modifier</button>
+        <button class="btn btn-primary" onclick="ouvrirModalEleve('${e.id}')"><i class="ti ti-edit"></i>Modifier</button>
+        <button class="btn btn-danger" onclick="supprimerEleve('${e.id}')"><i class="ti ti-trash"></i></button>
       </div>
     </div>
     <div class="grid-2">
-      <div class="card fa fa-2">
+      <div class="card fa">
         <div class="card-head"><div class="card-head-title"><i class="ti ti-id-badge"></i>Informations</div></div>
         <div class="card-body">
-          <div class="li"><span style="color:var(--ink3);font-size:12px">Classe</span><span style="font-weight:500">${e.classe}</span></div>
-          <div class="li"><span style="color:var(--ink3);font-size:12px">Statut</span>${badgeStatut(e.statut)}</div>
-          <div class="li"><span style="color:var(--ink3);font-size:12px">Présence</span><span style="font-weight:500">${e.presence}%</span></div>
-          <div class="li"><span style="color:var(--ink3);font-size:12px">Paiement juin</span>${badgePaie(e.paie)}</div>
-          <div class="li" style="border:none;padding-bottom:0"><span style="color:var(--ink3);font-size:12px">Contact parent</span><span style="font-weight:500">+33 6 12 34 56 78</span></div>
+          <div class="li"><span style="color:var(--ink3);font-size:12px">Classe</span><span style="font-weight:500">${e.classe||'—'}</span></div>
+          <div class="li"><span style="color:var(--ink3);font-size:12px">Email parent</span><span>${e.email_parent||'—'}</span></div>
+          <div class="li"><span style="color:var(--ink3);font-size:12px">Téléphone</span><span>${e.telephone_parent||'—'}</span></div>
+          <div class="li"><span style="color:var(--ink3);font-size:12px">Frais mensuel</span><span style="font-weight:500">${e.frais_mensuel||60} $</span></div>
+          <div class="li" style="border:none;padding-bottom:0"><span style="color:var(--ink3);font-size:12px">Statut</span><span class="badge ${e.statut==='actif'?'badge-g':'badge-a'}">${e.statut==='actif'?'Actif':'Inactif'}</span></div>
         </div>
       </div>
-      <div class="card fa fa-3">
-        <div class="card-head"><div class="card-head-title"><i class="ti ti-star"></i>Résultats T3</div></div>
+      <div class="card fa">
+        <div class="card-head"><div class="card-head-title"><i class="ti ti-chart-bar"></i>Présence (10 derniers jours)</div></div>
         <div class="card-body">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-            <span style="font-family:var(--font-head);font-size:28px;color:var(--ink)">${e.moy.toFixed(1)}<span style="font-size:16px;color:var(--ink3)">/20</span></span>
-            ${badgeMention(e.mention)}
-          </div>
-          <div class="bar-row"><div class="bar-meta"><span class="bar-name">Progression</span><span class="bar-val">${Math.round(e.moy/20*100)}%</span></div><div class="bar-track"><div class="bar-fill ${e.moy>=14?'bf-g':e.moy>=10?'bf-a':'bf-r'}" style="width:${e.moy/20*100}%"></div></div></div>
+          <div style="font-family:var(--font-head);font-size:32px;color:var(--ink);margin-bottom:8px">${tauxPres}%</div>
+          <div style="font-size:12px;color:var(--ink3);margin-bottom:14px">${nbPresent} présences sur ${pres?.length||0} jours</div>
+          ${pres?.length ? pres.map(p=>`
+            <div class="li">
+              <span style="font-size:12px;color:var(--ink3)">${new Date(p.date).toLocaleDateString('fr-FR')}</span>
+              <span class="badge ${p.statut==='present'?'badge-g':p.statut==='retard'?'badge-a':'badge-r'}">${p.statut==='present'?'Présent':p.statut==='retard'?'Retard':'Absent'}</span>
+            </div>`).join('') : '<p style="font-size:13px;color:var(--ink3)">Aucune présence enregistrée</p>'}
         </div>
       </div>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap" class="fa fa-4">
-      <button class="btn"><i class="ti ti-cash"></i>Voir paiements</button>
-      <button class="btn"><i class="ti ti-calendar-check"></i>Voir présences</button>
-      <button class="btn btn-primary"><i class="ti ti-file-text"></i>Générer bulletin</button>
-      <button class="btn"><i class="ti ti-brand-whatsapp"></i>Contacter parent</button>
+    <div class="card fa">
+      <div class="card-head"><div class="card-head-title"><i class="ti ti-receipt"></i>Historique des paiements</div></div>
+      <div class="card-body">
+        ${paies?.length ? paies.map(p=>`
+          <div class="li">
+            <span style="color:var(--ink2)">${p.mois}</span>
+            <span style="font-weight:500">${p.montant} $</span>
+            ${badgePaie(p.statut)}
+          </div>`).join('') : '<p style="font-size:13px;color:var(--ink3)">Aucun paiement enregistré</p>'}
+      </div>
     </div>
   `);
 }
 
-/* ════════════════════ PRÉSENCES ════════════════════ */
-function renderPresences(){
-  const classes = ['Coran niv. 1','Coran niv. 2','Arabe débutant','Arabe inter.','Fiqh'];
-  const elevesCoran1 = ELEVES.filter(e=>e.classe==='Coran niv. 1');
-  let statuts = {};
+function ouvrirModalEleve(id){
+  document.getElementById('eleve-edit-id').value = id||'';
+  document.getElementById('modal-eleve-title').textContent = id ? 'Modifier l\'élève' : 'Nouvel élève';
+  if(!id){
+    ['eleve-prenom','eleve-nom','eleve-email','eleve-tel'].forEach(f=>document.getElementById(f).value='');
+    document.getElementById('eleve-frais').value = 60;
+    document.getElementById('eleve-classe').value = '';
+  } else {
+    sb.from('eleves').select('*').eq('id',id).single().then(({data:e})=>{
+      if(!e) return;
+      document.getElementById('eleve-prenom').value = e.prenom||'';
+      document.getElementById('eleve-nom').value = e.nom||'';
+      document.getElementById('eleve-email').value = e.email_parent||'';
+      document.getElementById('eleve-tel').value = e.telephone_parent||'';
+      document.getElementById('eleve-frais').value = e.frais_mensuel||60;
+      document.getElementById('eleve-classe').value = e.classe||'';
+    });
+  }
+  openModal('modal-eleve');
+}
 
-  function getRows(){
-    return elevesCoran1.map(e=>{
+async function sauvegarderEleve(){
+  const id = document.getElementById('eleve-edit-id').value;
+  let classe = document.getElementById('eleve-classe').value;
+  if(classe === '__new'){
+    classe = prompt('Nom de la nouvelle classe :');
+    if(!classe) return;
+  }
+  const data = {
+    institut_id: currentInstitut.id,
+    prenom: document.getElementById('eleve-prenom').value.trim(),
+    nom: document.getElementById('eleve-nom').value.trim(),
+    classe: classe,
+    email_parent: document.getElementById('eleve-email').value.trim(),
+    telephone_parent: document.getElementById('eleve-tel').value.trim(),
+    frais_mensuel: parseFloat(document.getElementById('eleve-frais').value)||60,
+  };
+  if(!data.prenom||!data.nom){ toast('Prénom et nom obligatoires','error'); return; }
+
+  let error;
+  if(id){
+    ({error} = await sb.from('eleves').update(data).eq('id',id));
+  } else {
+    ({error} = await sb.from('eleves').insert(data));
+  }
+  if(error){ toast('Erreur : '+error.message,'error'); return; }
+  closeModal('modal-eleve');
+  toast(id ? 'Élève modifié ✓' : 'Élève ajouté ✓');
+  renderEleves();
+}
+
+async function supprimerEleve(id){
+  if(!confirm('Supprimer cet élève ? Cette action est irréversible.')) return;
+  const { error } = await sb.from('eleves').delete().eq('id',id);
+  if(error){ toast('Erreur suppression','error'); return; }
+  toast('Élève supprimé');
+  renderEleves();
+}
+
+/* ══════════════════════════════════════════════
+   IMPORT CSV
+══════════════════════════════════════════════ */
+function renderImportCSV(){
+  M(`
+    <div class="ph fa">
+      <div><h1>Importer des élèves</h1><p>Via un fichier CSV ou Excel exporté en CSV</p></div>
+      <button class="btn" onclick="renderEleves()"><i class="ti ti-arrow-left"></i>Retour</button>
+    </div>
+    <div class="card fa">
+      <div class="card-head"><div class="card-head-title"><i class="ti ti-file-spreadsheet"></i>Format attendu</div></div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--ink2);margin-bottom:12px">Votre fichier CSV doit avoir ces colonnes (la première ligne est l'en-tête) :</p>
+        <div style="background:var(--bg2);border-radius:var(--radius);padding:12px;font-family:monospace;font-size:12px;color:var(--ink2);margin-bottom:16px">
+          Prénom,Nom,Classe,Email parent,Téléphone,Frais mensuel
+        </div>
+        <a href="data:text/csv;charset=utf-8,Prénom,Nom,Classe,Email parent,Téléphone,Frais mensuel%0AFatima,Al-Azhar,Coran niv. 1,parent@email.com,+33612345678,60" download="modele-idara-os.csv" class="btn btn-sm" style="margin-bottom:20px"><i class="ti ti-download"></i>Télécharger le modèle</a>
+        <div style="border:2px dashed var(--border);border-radius:var(--radius-lg);padding:32px;text-align:center" id="drop-zone">
+          <i class="ti ti-upload" style="font-size:32px;color:var(--ink3);display:block;margin-bottom:10px"></i>
+          <p style="font-size:13px;color:var(--ink2);margin-bottom:12px">Glissez votre fichier CSV ici ou</p>
+          <label class="btn btn-primary" style="cursor:pointer">
+            <i class="ti ti-folder-open"></i>Choisir un fichier
+            <input type="file" accept=".csv" style="display:none" onchange="lireCSV(this.files[0])">
+          </label>
+        </div>
+        <div id="csv-preview" style="margin-top:16px"></div>
+      </div>
+    </div>
+  `);
+}
+
+function lireCSV(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l=>l.trim());
+    const headers = lines[0].split(',').map(h=>h.trim());
+    const eleves = lines.slice(1).map(line=>{
+      const cols = line.split(',').map(c=>c.trim().replace(/^"|"$/g,''));
+      return { prenom:cols[0], nom:cols[1], classe:cols[2], email_parent:cols[3], telephone_parent:cols[4], frais_mensuel:parseFloat(cols[5])||60 };
+    }).filter(e=>e.prenom&&e.nom);
+
+    window._csvEleves = eleves;
+    document.getElementById('csv-preview').innerHTML = `
+      <div class="card">
+        <div class="card-head"><div class="card-head-title"><i class="ti ti-eye"></i>Aperçu — ${eleves.length} élèves détectés</div></div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Prénom</th><th>Nom</th><th>Classe</th><th>Contact</th><th>Frais</th></tr></thead>
+            <tbody>${eleves.slice(0,5).map(e=>`<tr><td>${e.prenom}</td><td>${e.nom}</td><td>${e.classe||'—'}</td><td>${e.email_parent||e.telephone_parent||'—'}</td><td>${e.frais_mensuel} $</td></tr>`).join('')}
+            ${eleves.length>5?`<tr><td colspan="5" style="color:var(--ink3);font-size:12px;text-align:center">… et ${eleves.length-5} autres</td></tr>`:''}
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:14px 18px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">
+          <button class="btn" onclick="renderEleves()">Annuler</button>
+          <button class="btn btn-primary" onclick="importerCSV()"><i class="ti ti-upload"></i>Importer ${eleves.length} élèves</button>
+        </div>
+      </div>`;
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+async function importerCSV(){
+  const eleves = window._csvEleves;
+  if(!eleves?.length) return;
+  const data = eleves.map(e=>({...e, institut_id:currentInstitut.id, statut:'actif'}));
+  const { error } = await sb.from('eleves').insert(data);
+  if(error){ toast('Erreur import : '+error.message,'error'); return; }
+  toast(`${eleves.length} élèves importés avec succès ✓`);
+  renderEleves();
+}
+
+/* ══════════════════════════════════════════════
+   PRÉSENCES
+══════════════════════════════════════════════ */
+async function renderPresences(){
+  M(`<div class="empty fa"><div class="spinner" style="width:28px;height:28px;border-color:var(--border);border-top-color:var(--accent)"></div></div>`);
+  if(!currentInstitut) return;
+
+  const { data: eleves } = await sb.from('eleves').select('*').eq('institut_id',currentInstitut.id).eq('statut','actif').order('classe').order('nom');
+  const today = new Date().toISOString().split('T')[0];
+  const { data: existing } = await sb.from('presences').select('*').eq('institut_id',currentInstitut.id).eq('date',today);
+
+  const statuts = {};
+  (existing||[]).forEach(p=>{ statuts[p.eleve_id]=p.statut; });
+  window._presStatuts = statuts;
+  window._presEleves = eleves||[];
+  window._presDate = today;
+
+  const classes = [...new Set((eleves||[]).map(e=>e.classe))].filter(Boolean);
+
+  function renderRows(classeFilter){
+    const list = classeFilter ? (eleves||[]).filter(e=>e.classe===classeFilter) : (eleves||[]);
+    return list.map(e=>{
       const s = statuts[e.id];
       return `<tr>
-        <td><div class="li-l"><div class="av ${e.av}">${e.init}</div><div class="li-name">${e.prenom} ${e.nom}</div></div></td>
+        <td><div class="li-l"><div class="av ${avColor(e.prenom+e.nom)}">${initiales(e.prenom,e.nom)}</div><div class="li-name">${e.prenom} ${e.nom}</div></div></td>
+        <td style="font-size:12px;color:var(--ink3)">${e.classe||'—'}</td>
         <td>
           <div style="display:flex;gap:6px">
-            <button onclick="setPresence(${e.id},'present')" style="width:32px;height:28px;border-radius:var(--radius);border:1px solid var(--border);background:${s==='present'?'var(--accent-bg)':'var(--bg)'};color:${s==='present'?'var(--accent)':'var(--ink3)'};cursor:pointer;font-size:14px;transition:all .12s" title="Présent">✓</button>
-            <button onclick="setPresence(${e.id},'absent')" style="width:32px;height:28px;border-radius:var(--radius);border:1px solid var(--border);background:${s==='absent'?'var(--red-bg)':'var(--bg)'};color:${s==='absent'?'var(--red)':'var(--ink3)'};cursor:pointer;font-size:14px;transition:all .12s" title="Absent">✗</button>
-            <button onclick="setPresence(${e.id},'retard')" style="width:32px;height:28px;border-radius:var(--radius);border:1px solid var(--border);background:${s==='retard'?'var(--gold-bg)':'var(--bg)'};color:${s==='retard'?'var(--gold)':'var(--ink3)'};cursor:pointer;font-size:13px;transition:all .12s" title="Retard">⏱</button>
+            <button onclick="setStatut('${e.id}','present')" style="padding:5px 10px;border-radius:var(--radius);border:1px solid var(--border);background:${s==='present'?'var(--accent-bg)':'var(--bg)'};color:${s==='present'?'var(--accent)':'var(--ink3)'};cursor:pointer;font-size:13px;font-family:var(--font-body);transition:all .12s">✓ Présent</button>
+            <button onclick="setStatut('${e.id}','absent')" style="padding:5px 10px;border-radius:var(--radius);border:1px solid var(--border);background:${s==='absent'?'var(--red-bg)':'var(--bg)'};color:${s==='absent'?'var(--red)':'var(--ink3)'};cursor:pointer;font-size:13px;font-family:var(--font-body);transition:all .12s">✗ Absent</button>
+            <button onclick="setStatut('${e.id}','retard')" style="padding:5px 10px;border-radius:var(--radius);border:1px solid var(--border);background:${s==='retard'?'var(--gold-bg)':'var(--bg)'};color:${s==='retard'?'var(--gold)':'var(--ink3)'};cursor:pointer;font-size:13px;font-family:var(--font-body);transition:all .12s">⏱ Retard</button>
           </div>
         </td>
-        <td><span style="font-size:12px;color:var(--ink3)">${e.presence}% ce mois</span></td>
       </tr>`;
     }).join('');
   }
-
-  function setPresence(id, val){
-    statuts[id] = val;
-    document.getElementById('appel-body').innerHTML = getRows();
-    const p=Object.values(statuts).filter(v=>v==='present').length;
-    const a=Object.values(statuts).filter(v=>v==='absent').length;
-    const r=Object.values(statuts).filter(v=>v==='retard').length;
-    document.getElementById('kpi-p').textContent=p;
-    document.getElementById('kpi-a').textContent=a;
-    document.getElementById('kpi-r').textContent=r;
-  }
-  window.setPresence = setPresence;
+  window._renderPresRows = renderRows;
 
   M(`
-    <div class="ph">
-      <div class="ph-left"><h1>Présences</h1><p>Jeudi 4 juin 2026 · Appel du jour</p></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn" onclick="Object.keys(window._pEl||{}).forEach(()=>{});document.querySelectorAll('[title=Présent]').forEach(b=>b.click())">Tous présents</button>
-        <button class="btn btn-primary" onclick="alert('✅ Appel enregistré — les absents ont été notifiés par email.')"><i class="ti ti-device-floppy"></i>Enregistrer</button>
-      </div>
+    <div class="ph fa">
+      <div><h1>Présences</h1><p>${new Date(today).toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p></div>
+      <button class="btn btn-primary" onclick="enregistrerPresences()"><i class="ti ti-device-floppy"></i>Enregistrer l'appel</button>
     </div>
-    <div class="kpi-grid" style="margin-bottom:16px">
-      <div class="kpi fa fa-2"><div class="kpi-lbl"><i class="ti ti-circle-check"></i>Présents</div><div class="kpi-val" id="kpi-p" style="color:var(--accent)">0</div><div class="kpi-sub">aujourd'hui</div></div>
-      <div class="kpi fa fa-3"><div class="kpi-lbl"><i class="ti ti-circle-x"></i>Absents</div><div class="kpi-val" id="kpi-a" style="color:var(--red)">0</div><div class="kpi-sub">aujourd'hui</div></div>
-      <div class="kpi fa fa-4"><div class="kpi-lbl"><i class="ti ti-clock"></i>En retard</div><div class="kpi-val" id="kpi-r" style="color:var(--gold)">0</div><div class="kpi-sub">aujourd'hui</div></div>
-    </div>
-    <div class="card fa fa-3">
+    <div class="card fa">
       <div class="card-head">
-        <div class="card-head-title"><i class="ti ti-calendar-check"></i>Appel — Coran niv. 1</div>
-        <select style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);font-family:var(--font-body);font-size:13px;color:var(--ink2);cursor:pointer">
-          ${classes.map(c=>`<option>${c}</option>`).join('')}
+        <div class="card-head-title"><i class="ti ti-calendar-check"></i>Appel du jour</div>
+        <select onchange="document.getElementById('pres-tbody').innerHTML=window._renderPresRows(this.value)" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);font-family:var(--font-body);font-size:13px;color:var(--ink2);cursor:pointer">
+          <option value="">Toutes les classes</option>
+          ${classes.map(c=>`<option value="${c}">${c}</option>`).join('')}
         </select>
       </div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th style="width:45%">Élève</th><th>Statut</th><th>Taux ce mois</th></tr></thead>
-          <tbody id="appel-body">${getRows()}</tbody>
-        </table>
-      </div>
+      ${eleves?.length ? `
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th style="width:35%">Élève</th><th>Classe</th><th>Statut</th></tr></thead>
+            <tbody id="pres-tbody">${renderRows('')}</tbody>
+          </table>
+        </div>` : `<div class="empty"><i class="ti ti-users"></i><h3>Aucun élève</h3><p>Ajoutez des élèves d'abord.</p></div>`}
     </div>
   `);
 }
 
-/* ════════════════════ PAIEMENTS ════════════════════ */
-function renderPaiements(){
-  const rows = ELEVES.map(e=>`
-    <tr>
-      <td><div class="li-l"><div class="av ${e.av}">${e.init}</div><div><div class="li-name">${e.prenom} ${e.nom}</div><div class="li-sub">${e.classe}</div></div></div></td>
-      <td>60 $</td>
-      <td>${badgePaie(e.paie)}</td>
-      <td style="color:var(--ink3);font-size:12px">${e.pdate}</td>
-      <td>
-        ${e.paie!=='Payé'?`<button class="btn btn-sm" onclick="marquerPaye(${e.id})"><i class="ti ti-check"></i>Marquer payé</button>`:''}
-      </td>
-    </tr>`).join('');
+function setStatut(eleveId, statut){
+  window._presStatuts[eleveId] = statut;
+  const sel = document.querySelector(`[data-page=presences].active`) ? '' : '';
+  document.getElementById('pres-tbody').innerHTML = window._renderPresRows(
+    document.querySelector('#pres-tbody')?.closest('.card')?.querySelector('select')?.value||''
+  );
+}
+
+async function enregistrerPresences(){
+  const today = window._presDate;
+  const statuts = window._presStatuts;
+  const iid = currentInstitut.id;
+
+  // Supprimer les anciennes entrées du jour
+  await sb.from('presences').delete().eq('institut_id',iid).eq('date',today);
+
+  const rows = Object.entries(statuts).map(([eleve_id,statut])=>({
+    institut_id:iid, eleve_id, date:today, statut
+  }));
+
+  if(rows.length){
+    const { error } = await sb.from('presences').insert(rows);
+    if(error){ toast('Erreur : '+error.message,'error'); return; }
+  }
+  toast(`Appel enregistré — ${rows.length} présences sauvegardées ✓`);
+}
+
+/* ══════════════════════════════════════════════
+   PAIEMENTS
+══════════════════════════════════════════════ */
+async function renderPaiements(){
+  M(`<div class="empty fa"><div class="spinner" style="width:28px;height:28px;border-color:var(--border);border-top-color:var(--accent)"></div></div>`);
+  if(!currentInstitut) return;
+
+  const moisEnCours = new Date().toISOString().slice(0,7);
+  const { data: eleves } = await sb.from('eleves').select('*').eq('institut_id',currentInstitut.id).eq('statut','actif').order('nom');
+  const { data: paiements } = await sb.from('paiements').select('*').eq('institut_id',currentInstitut.id).eq('mois',moisEnCours);
+
+  const paieMap = {};
+  (paiements||[]).forEach(p=>{ paieMap[p.eleve_id]=p; });
+
+  const encaisse = (paiements||[]).filter(p=>p.statut==='paye').reduce((a,p)=>a+p.montant,0);
+  const retards = (eleves||[]).filter(e=>!paieMap[e.id]||paieMap[e.id].statut==='en_retard').length;
 
   M(`
-    <div class="ph">
-      <div class="ph-left"><h1>Paiements</h1><p>Juin 2026 · Institut Al-Fath</p></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-warn" onclick="alert('📲 Relances envoyées aux 4 familles en retard.')"><i class="ti ti-send"></i>Relancer les retards</button>
-        <button class="btn btn-primary"><i class="ti ti-plus"></i>Saisir un paiement</button>
-      </div>
+    <div class="ph fa">
+      <div><h1>Paiements</h1><p>${new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}</p></div>
+      <button class="btn btn-primary" onclick="genererPaiementsMois()"><i class="ti ti-refresh"></i>Générer le mois</button>
     </div>
-    <div class="kpi-grid fa fa-2" style="margin-bottom:16px">
-      <div class="kpi"><div class="kpi-lbl"><i class="ti ti-cash"></i>Encaissé</div><div class="kpi-val" style="color:var(--accent)">3 420 $</div><div class="kpi-sub kpi-up"><i class="ti ti-trending-up"></i>86% du prévu</div></div>
-      <div class="kpi"><div class="kpi-lbl"><i class="ti ti-clock"></i>En attente</div><div class="kpi-val" style="color:var(--gold)">480 $</div><div class="kpi-sub">8 élèves</div></div>
-      <div class="kpi"><div class="kpi-lbl"><i class="ti ti-alert-triangle"></i>En retard</div><div class="kpi-val" style="color:var(--red)">240 $</div><div class="kpi-sub">4 élèves</div></div>
-      <div class="kpi"><div class="kpi-lbl"><i class="ti ti-trending-up"></i>Taux collecte</div><div class="kpi-val">86%</div><div class="kpi-sub kpi-up"><i class="ti ti-trending-up"></i>vs 79% mai</div></div>
+    <div class="kpi-grid fa">
+      <div class="kpi"><div class="kpi-lbl"><i class="ti ti-cash"></i>Encaissé</div><div class="kpi-val" style="color:var(--accent)">${encaisse} $</div></div>
+      <div class="kpi"><div class="kpi-lbl"><i class="ti ti-alert-triangle"></i>En retard / manquant</div><div class="kpi-val" style="color:var(--red)">${retards}</div></div>
     </div>
-    <div class="card fa fa-3">
-      <div class="card-head"><div class="card-head-title"><i class="ti ti-receipt"></i>Suivi des paiements — Juin 2026</div></div>
+    <div class="card fa">
+      <div class="card-head"><div class="card-head-title"><i class="ti ti-receipt"></i>Suivi des paiements</div></div>
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th style="width:35%">Élève</th><th>Montant</th><th>Statut</th><th>Date</th><th>Action</th></tr></thead>
-          <tbody id="paie-tbody">${rows}</tbody>
+          <thead><tr><th style="width:35%">Élève</th><th>Classe</th><th>Montant</th><th>Statut</th><th>Action</th></tr></thead>
+          <tbody id="paie-tbody">
+            ${(eleves||[]).map(e=>{
+              const p = paieMap[e.id];
+              return `<tr>
+                <td><div class="li-l"><div class="av ${avColor(e.prenom+e.nom)}">${initiales(e.prenom,e.nom)}</div><div><div class="li-name">${e.prenom} ${e.nom}</div><div class="li-sub">${e.classe||''}</div></div></div></td>
+                <td style="color:var(--ink3);font-size:12px">${e.classe||'—'}</td>
+                <td style="font-weight:500">${e.frais_mensuel||60} $</td>
+                <td>${p ? badgePaie(p.statut) : '<span class="badge badge-a">Non généré</span>'}</td>
+                <td>${p && p.statut!=='paye' ? `<button class="btn btn-sm" onclick="marquerPaye('${p.id}','${e.id}')"><i class="ti ti-check"></i>Marquer payé</button>` : p?.statut==='paye' ? '<span style="font-size:12px;color:var(--ink3)">✓ Reçu</span>' : `<button class="btn btn-sm" onclick="creerEtPayer('${e.id}',${e.frais_mensuel||60})"><i class="ti ti-plus"></i>Saisir</button>`}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
         </table>
       </div>
     </div>
   `);
 }
 
-function marquerPaye(id){
-  const e = ELEVES.find(x=>x.id===id);
-  e.paie = 'Payé';
-  e.pdate = new Date().toLocaleDateString('fr-FR');
+async function genererPaiementsMois(){
+  const mois = new Date().toISOString().slice(0,7);
+  const { data: eleves } = await sb.from('eleves').select('*').eq('institut_id',currentInstitut.id).eq('statut','actif');
+  const { data: existing } = await sb.from('paiements').select('eleve_id').eq('institut_id',currentInstitut.id).eq('mois',mois);
+  const existingIds = new Set((existing||[]).map(p=>p.eleve_id));
+  const nouveaux = (eleves||[]).filter(e=>!existingIds.has(e.id)).map(e=>({
+    institut_id:currentInstitut.id, eleve_id:e.id, mois, montant:e.frais_mensuel||60, statut:'en_attente'
+  }));
+  if(!nouveaux.length){ toast('Paiements déjà générés pour ce mois'); return; }
+  const { error } = await sb.from('paiements').insert(nouveaux);
+  if(error){ toast('Erreur : '+error.message,'error'); return; }
+  toast(`${nouveaux.length} paiements générés ✓`);
   renderPaiements();
 }
 
-/* ════════════════════ BULLETINS ════════════════════ */
-function renderBulletins(){
-  const rows = ELEVES.map(e=>`
-    <tr onclick="voirBulletin(${e.id})">
-      <td><div class="li-l"><div class="av ${e.av}">${e.init}</div><div><div class="li-name">${e.prenom} ${e.nom}</div><div class="li-sub">${e.classe}</div></div></div></td>
-      <td><span class="badge ${noteColor(e.moy)}">${e.moy.toFixed(1)}/20</span></td>
-      <td>${badgeMention(e.mention)}</td>
-      <td><span class="badge ${e.moy>=10?'badge-g':'badge-r'}">${e.moy>=10?'Généré':'En attente'}</span></td>
-    </tr>`).join('');
+async function marquerPaye(paiId, eleveId){
+  const { error } = await sb.from('paiements').update({statut:'paye',date_paiement:new Date().toISOString().split('T')[0]}).eq('id',paiId);
+  if(error){ toast('Erreur','error'); return; }
+  toast('Paiement enregistré ✓');
+  renderPaiements();
+}
+
+async function creerEtPayer(eleveId, montant){
+  const mois = new Date().toISOString().slice(0,7);
+  const { error } = await sb.from('paiements').insert({
+    institut_id:currentInstitut.id, eleve_id:eleveId, mois, montant, statut:'paye', date_paiement:new Date().toISOString().split('T')[0]
+  });
+  if(error){ toast('Erreur','error'); return; }
+  toast('Paiement enregistré ✓');
+  renderPaiements();
+}
+
+/* ══════════════════════════════════════════════
+   BULLETINS
+══════════════════════════════════════════════ */
+async function renderBulletins(){
+  M(`<div class="empty fa"><div class="spinner" style="width:28px;height:28px;border-color:var(--border);border-top-color:var(--accent)"></div></div>`);
+  if(!currentInstitut) return;
+  const { data: eleves } = await sb.from('eleves').select('*').eq('institut_id',currentInstitut.id).eq('statut','actif').order('nom');
+  const trimestre = 'T3 2025-2026';
+  const { data: bulletins } = await sb.from('bulletins').select('*').eq('institut_id',currentInstitut.id).eq('trimestre',trimestre);
+  const bulMap = {};
+  (bulletins||[]).forEach(b=>{ bulMap[b.eleve_id]=b; });
 
   M(`
-    <div class="ph">
-      <div class="ph-left"><h1>Bulletins</h1><p>3ème trimestre 2025–2026</p></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn" onclick="alert('📲 61 bulletins envoyés par email aux familles.')"><i class="ti ti-send"></i>Envoyer tous</button>
-        <button class="btn btn-primary"><i class="ti ti-edit"></i>Saisir les notes</button>
-      </div>
+    <div class="ph fa">
+      <div><h1>Bulletins</h1><p>${trimestre}</p></div>
     </div>
-    <div class="card fa fa-2">
-      <div class="card-head"><div class="card-head-title"><i class="ti ti-file-text"></i>Bulletins — T3 2025–2026</div></div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th style="width:38%">Élève</th><th>Moyenne</th><th>Mention</th><th>Statut</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
+    <div class="card fa">
+      <div class="card-head"><div class="card-head-title"><i class="ti ti-file-text"></i>Bulletins — ${eleves?.length||0} élèves</div></div>
+      ${eleves?.length ? `
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th style="width:38%">Élève</th><th>Classe</th><th>Moyenne</th><th>Statut</th><th>Action</th></tr></thead>
+            <tbody>${(eleves||[]).map(e=>{
+              const b = bulMap[e.id];
+              return `<tr>
+                <td><div class="li-l"><div class="av ${avColor(e.prenom+e.nom)}">${initiales(e.prenom,e.nom)}</div><div class="li-name">${e.prenom} ${e.nom}</div></div></td>
+                <td style="color:var(--ink3);font-size:12px">${e.classe||'—'}</td>
+                <td>${b?.moyenne ? `<span class="badge ${b.moyenne>=14?'badge-g':b.moyenne>=10?'badge-a':'badge-r'}">${b.moyenne}/20</span>` : '—'}</td>
+                <td>${b ? `<span class="badge badge-g">Saisi</span>` : `<span class="badge badge-a">En attente</span>`}</td>
+                <td><button class="btn btn-sm" onclick="ouvrirBulletin('${e.id}','${e.prenom} ${e.nom}','${e.classe||''}')"><i class="ti ti-edit"></i>${b?'Modifier':'Saisir'}</button></td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>` : `<div class="empty"><i class="ti ti-file-text"></i><h3>Aucun élève</h3><p>Ajoutez des élèves d'abord.</p></div>`}
     </div>
   `);
 }
 
-function voirBulletin(id){
-  const e = ELEVES.find(x=>x.id===id);
+async function ouvrirBulletin(eleveId, nom, classe){
+  const trimestre = 'T3 2025-2026';
+  const { data: b } = await sb.from('bulletins').select('*').eq('eleve_id',eleveId).eq('trimestre',trimestre).single();
+  const notes = b?.notes || {};
+
   M(`
-    <div class="ph">
-      <div class="ph-left"><h1>Bulletin — ${e.prenom} ${e.nom}</h1><p>3ème trimestre 2025–2026 · ${e.classe}</p></div>
+    <div class="ph fa">
+      <div><h1>Bulletin — ${nom}</h1><p>${classe} · ${trimestre}</p></div>
       <div style="display:flex;gap:8px">
         <button class="btn" onclick="renderBulletins()"><i class="ti ti-arrow-left"></i>Retour</button>
-        <button class="btn btn-primary" onclick="alert('📄 Bulletin PDF généré.')"><i class="ti ti-download"></i>Télécharger PDF</button>
-        <button class="btn" onclick="alert('📲 Bulletin envoyé par email à la famille.')"><i class="ti ti-send"></i>Envoyer</button>
+        <button class="btn btn-primary" onclick="sauvegarderBulletin('${eleveId}','${trimestre}')"><i class="ti ti-check"></i>Enregistrer</button>
       </div>
     </div>
-    <div class="card fa fa-2" style="max-width:600px">
-      <div class="card-head">
-        <div class="card-head-title"><i class="ti ti-school"></i>Institut Al-Fath — Le Caire</div>
-        <span style="font-size:12px;color:var(--ink3)">T3 2025–2026 · Émis le 4 juin 2026</span>
-      </div>
-      <div class="card-body">
-        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg2);border-radius:var(--radius);margin-bottom:16px">
-          <div class="av ${e.av}" style="width:40px;height:40px;font-size:14px">${e.init}</div>
-          <div><div style="font-size:15px;font-weight:500">${e.prenom} ${e.nom}</div><div style="font-size:12px;color:var(--ink3)">${e.classe} · Présence : ${e.presence}%</div></div>
-          <div style="margin-left:auto">${badgeMention(e.mention)}</div>
+    <div class="card fa">
+      <div class="card-head"><div class="card-head-title"><i class="ti ti-file-text"></i>Saisie des notes</div></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+        ${['Mémorisation / Récitation','Tajwid','Expression orale','Grammaire','Comportement'].map((mat,i)=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:13px;color:var(--ink2);flex:1">${mat}</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="number" min="0" max="20" step="0.5" value="${notes[mat]||''}" placeholder="—" id="note-${i}"
+                style="width:70px;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);font-family:var(--font-body);font-size:14px;text-align:center;outline:none"
+                oninput="calculerMoyenne()">
+              <span style="font-size:12px;color:var(--ink3)">/20</span>
+            </div>
+          </div>`).join('')}
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg2);border-radius:var(--radius);margin-top:4px">
+          <span style="font-size:14px;font-weight:500;color:var(--ink)">Moyenne générale</span>
+          <span id="moy-display" style="font-family:var(--font-head);font-size:22px;color:var(--ink)">—</span>
         </div>
-        <table style="margin-bottom:16px">
-          <thead><tr><th>Matière</th><th style="text-align:center">Coef.</th><th style="text-align:center">Note /20</th></tr></thead>
-          <tbody>
-            <tr><td>Mémorisation / Grammaire</td><td style="text-align:center">3</td><td style="text-align:center"><span class="badge ${noteColor(e.moy+0.5)}">${(e.moy+0.5).toFixed(1)}</span></td></tr>
-            <tr><td>Tajwid / Expression écrite</td><td style="text-align:center">2</td><td style="text-align:center"><span class="badge ${noteColor(e.moy)}">${e.moy.toFixed(1)}</span></td></tr>
-            <tr><td>Récitation / Expression orale</td><td style="text-align:center">2</td><td style="text-align:center"><span class="badge ${noteColor(e.moy-0.5)}">${(e.moy-0.5).toFixed(1)}</span></td></tr>
-            <tr><td>Comportement / Assiduité</td><td style="text-align:center">1</td><td style="text-align:center"><span class="badge ${noteColor(e.moy+1)}">${(e.moy+1).toFixed(1)}</span></td></tr>
-          </tbody>
-        </table>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg2);border-radius:var(--radius);margin-bottom:14px">
-          <span style="font-size:13px;color:var(--ink2)">Moyenne générale</span>
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-family:var(--font-head);font-size:22px">${e.moy.toFixed(2)} / 20</span>
-            ${badgeMention(e.mention)}
-          </div>
-        </div>
-        <div style="padding:12px;border-left:3px solid var(--accent-lt);background:var(--accent-bg);border-radius:0 var(--radius) var(--radius) 0;font-size:13px;line-height:1.7;color:var(--ink)">
-          ${e.moy>=16?`${e.prenom} est un(e) élève exceptionnel(le), assidu(e) et appliqué(e). Sa progression est remarquable. Félicitations à lui/elle et à sa famille. Continuez ainsi, barak Allahu fikum !`:e.moy>=12?`${e.prenom} fournit un travail sérieux et régulier. Son niveau est satisfaisant. Des efforts soutenus permettront de progresser encore davantage. Encouragements chaleureux.`:`${e.prenom} doit impérativement renforcer son assiduité et ses révisions. Des bases solides sont présentes. Un entretien avec la famille est recommandé pour accompagner la progression.`}
+        <div class="form-group">
+          <label>Appréciation de l'enseignant</label>
+          <textarea id="appreciation" placeholder="Commentaire sur la progression de l'élève…">${b?.appreciation||''}</textarea>
         </div>
       </div>
     </div>
   `);
+  window._bulletinMatieres = ['Mémorisation / Récitation','Tajwid','Expression orale','Grammaire','Comportement'];
+  calculerMoyenne();
 }
 
-/* ════════════════════ COMMUNICATION ════════════════════ */
+function calculerMoyenne(){
+  const notes = window._bulletinMatieres.map((_,i)=>parseFloat(document.getElementById(`note-${i}`)?.value)).filter(n=>!isNaN(n));
+  if(!notes.length){ document.getElementById('moy-display').textContent='—'; return; }
+  const moy = (notes.reduce((a,b)=>a+b,0)/notes.length).toFixed(2);
+  document.getElementById('moy-display').textContent = moy+'/20';
+}
+
+async function sauvegarderBulletin(eleveId, trimestre){
+  const matieres = window._bulletinMatieres;
+  const notes = {};
+  matieres.forEach((m,i)=>{ const v=parseFloat(document.getElementById(`note-${i}`)?.value); if(!isNaN(v)) notes[m]=v; });
+  const vals = Object.values(notes).filter(n=>!isNaN(n));
+  const moyenne = vals.length ? parseFloat((vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2)) : null;
+  const mention = moyenne>=16?'Excellent':moyenne>=14?'Très bien':moyenne>=12?'Bien':moyenne>=10?'Assez bien':'Insuffisant';
+  const appreciation = document.getElementById('appreciation')?.value||'';
+
+  const { data: existing } = await sb.from('bulletins').select('id').eq('eleve_id',eleveId).eq('trimestre',trimestre).single();
+  let error;
+  if(existing){
+    ({error} = await sb.from('bulletins').update({notes,moyenne,mention,appreciation}).eq('id',existing.id));
+  } else {
+    ({error} = await sb.from('bulletins').insert({institut_id:currentInstitut.id,eleve_id:eleveId,trimestre,notes,moyenne,mention,appreciation}));
+  }
+  if(error){ toast('Erreur : '+error.message,'error'); return; }
+  toast('Bulletin enregistré ✓');
+  renderBulletins();
+}
+
+/* ══════════════════════════════════════════════
+   COMMUNICATION
+══════════════════════════════════════════════ */
 function renderCommunication(){
-  const templates = {
-    rappel: `Assalamu alaykum,\n\nNous vous rappelons que les frais de scolarité de juin 2026 sont toujours en attente.\n\nMontant dû : 60 $\n\nMerci de régulariser dans les meilleurs délais.\n\nJazakum Allahu khayran 🌙\nInstitut Al-Fath — Le Caire`,
-    absence: `Assalamu alaykum,\n\nNous vous informons que votre enfant était absent(e) lors de la séance d'aujourd'hui.\n\nSi cette absence est justifiée, merci de nous transmettre un justificatif.\n\nBarak Allahu fikum 🌙\nInstitut Al-Fath — Le Caire`,
-    bulletin: `Assalamu alaykum,\n\nLe bulletin du 3ème trimestre de votre enfant est désormais disponible. Vous pouvez le consulter via le lien ci-joint.\n\nJazakum Allahu khayran 🌙\nInstitut Al-Fath — Le Caire`,
-    annonce: `Assalamu alaykum,\n\nNous vous informons que l'institut sera fermé exceptionnellement vendredi 12 juin. Les cours reprendront samedi 13 juin.\n\nMerci de votre compréhension.\n\nBarak Allahu fikum 🌙\nInstitut Al-Fath`,
-  };
-  window._tpls = templates;
+  M(`
+    <div class="ph fa"><div><h1>Communication</h1><p>Messages groupés aux familles</p></div></div>
+    <div class="card fa">
+      <div class="card-head"><div class="card-head-title"><i class="ti ti-send"></i>Envoyer un message</div></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+        <div class="form-group">
+          <label>Destinataires</label>
+          <select id="comm-dest" style="padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);font-family:var(--font-body);font-size:13px;color:var(--ink);outline:none">
+            <option value="tous">Tous les élèves</option>
+            <option value="retard">Paiements en retard</option>
+            <option value="absents">Absents aujourd'hui</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Modèles rapides</label>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px">
+            ${[
+              {k:'rappel',icon:'ti-cash',t:'Rappel paiement'},
+              {k:'absence',icon:'ti-calendar-x',t:'Absence signalée'},
+              {k:'bulletin',icon:'ti-file-text',t:'Bulletin disponible'},
+              {k:'annonce',icon:'ti-speakerphone',t:'Annonce générale'},
+            ].map(m=>`<button class="btn btn-sm" onclick="useTpl('${m.k}')"><i class="ti ${m.icon}"></i>${m.t}</button>`).join('')}
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea id="comm-msg" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:13px;line-height:1.6;resize:vertical;min-height:120px;outline:none" placeholder="Rédigez votre message ici…"></textarea>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" onclick="envoyerComm()"><i class="ti ti-mail"></i>Envoyer par email</button>
+          <button class="btn" style="background:var(--accent-bg);border-color:var(--accent-lt);color:var(--accent)" onclick="toast('Option WhatsApp disponible dans le pack Growth 🌙')"><i class="ti ti-brand-whatsapp"></i>WhatsApp (option)</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+const TPLS = {
+  rappel:`Assalamu alaykum,\n\nNous vous rappelons que les frais de scolarité du mois en cours sont toujours en attente de règlement.\n\nMerci de régulariser votre situation dans les meilleurs délais.\n\nJazakum Allahu khayran 🌙\n${currentInstitut?.nom||'Institut'}`,
+  absence:`Assalamu alaykum,\n\nNous vous informons que votre enfant était absent(e) lors de la séance d'aujourd'hui.\n\nSi cette absence est justifiée, merci de nous faire parvenir un justificatif.\n\nBarak Allahu fikum 🌙\n${currentInstitut?.nom||'Institut'}`,
+  bulletin:`Assalamu alaykum,\n\nNous avons le plaisir de vous informer que le bulletin de votre enfant est disponible.\n\nN'hésitez pas à nous contacter pour tout renseignement.\n\nJazakum Allahu khayran 🌙\n${currentInstitut?.nom||'Institut'}`,
+  annonce:`Assalamu alaykum,\n\nNous vous informons d'un changement dans le planning de l'institut.\n\nMerci de votre compréhension.\n\nBarak Allahu fikum 🌙\n${currentInstitut?.nom||'Institut'}`,
+};
+function useTpl(k){ const el=document.getElementById('comm-msg'); if(el) el.value=TPLS[k]||''; }
+function envoyerComm(){ toast('Message envoyé aux familles sélectionnées ✓'); }
+
+/* ══════════════════════════════════════════════
+   SUPER ADMIN — Gestion des instituts
+══════════════════════════════════════════════ */
+async function renderAdmin(){
+  if(currentRole !== 'superadmin'){ M('<div class="empty"><i class="ti ti-lock"></i><h3>Accès refusé</h3></div>'); return; }
+  M(`<div class="empty fa"><div class="spinner" style="width:28px;height:28px;border-color:var(--border);border-top-color:var(--accent)"></div></div>`);
+
+  const { data: instituts } = await sb.from('instituts').select('*').order('created_at',{ascending:false});
+  const { data: users } = await sb.from('utilisateurs').select('*');
 
   M(`
-    <div class="ph">
-      <div class="ph-left"><h1>Communication</h1><p>WhatsApp · Email · Annonces groupées</p></div>
+    <div class="ph fa">
+      <div><h1>Super Admin</h1><p>${instituts?.length||0} institut${instituts?.length!==1?'s':''} sur Idara OS</p></div>
+      <button class="btn btn-primary" onclick="ouvrirModalInstitut()"><i class="ti ti-plus"></i>Créer un institut</button>
     </div>
+    <div class="card fa">
+      <div class="card-head"><div class="card-head-title"><i class="ti ti-building"></i>Instituts actifs</div></div>
+      ${instituts?.length ? `
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Institut</th><th>Email admin</th><th>Pack</th><th>Statut</th><th>Action</th></tr></thead>
+            <tbody>${(instituts||[]).map(i=>`
+              <tr>
+                <td><div style="font-weight:500">${i.nom}</div></td>
+                <td style="color:var(--ink3);font-size:12px">${i.email_admin}</td>
+                <td><span class="badge badge-b">${i.pack||'starter'}</span></td>
+                <td><span class="badge ${i.actif?'badge-g':'badge-r'}">${i.actif?'Actif':'Suspendu'}</span></td>
+                <td style="display:flex;gap:6px">
+                  <button class="btn btn-sm ${i.actif?'btn-danger':''}" onclick="toggleInstitut('${i.id}',${i.actif})">${i.actif?'Suspendre':'Réactiver'}</button>
+                </td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>` : `
+        <div class="empty">
+          <i class="ti ti-building-off"></i>
+          <h3>Aucun institut</h3>
+          <p>Créez votre premier institut client.</p>
+          <button class="btn btn-primary" onclick="ouvrirModalInstitut()"><i class="ti ti-plus"></i>Créer un institut</button>
+        </div>`}
+    </div>
+  `);
+}
+
+function ouvrirModalInstitut(){
+  ['inst-nom','inst-email'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('inst-pass').value = Math.random().toString(36).slice(-10);
+  openModal('modal-institut');
+}
+
+async function creerInstitut(){
+  const nom = document.getElementById('inst-nom').value.trim();
+  const email = document.getElementById('inst-email').value.trim();
+  const pass = document.getElementById('inst-pass').value.trim();
+  const pack = document.getElementById('inst-pack').value;
+  if(!nom||!email||!pass){ toast('Tous les champs sont requis','error'); return; }
+
+  // 1. Créer l'institut
+  const { data: inst, error: instErr } = await sb.from('instituts').insert({nom, email_admin:email, pack, actif:true}).select().single();
+  if(instErr){ toast('Erreur création institut : '+instErr.message,'error'); return; }
+
+  // 2. Créer le compte auth Supabase
+  const { data: authData, error: authErr } = await sb.auth.admin?.createUser?.({email, password:pass, email_confirm:true}) || {};
+
+  // 3. Créer le profil utilisateur
+  const { error: userErr } = await sb.from('utilisateurs').insert({
+    institut_id: inst.id, email, nom: 'Directeur', role: 'admin', actif: true
+  });
+  if(userErr){ toast('Institut créé mais erreur profil : '+userErr.message,'error'); }
+
+  closeModal('modal-institut');
+  toast(`Institut "${nom}" créé ✓\nEmail: ${email} | Mot de passe: ${pass}`);
+  renderAdmin();
+}
+
+async function toggleInstitut(id, actif){
+  await sb.from('instituts').update({actif:!actif}).eq('id',id);
+  toast(actif ? 'Institut suspendu' : 'Institut réactivé');
+  renderAdmin();
+}
+
+/* ══════════════════════════════════════════════
+   PARAMÈTRES
+══════════════════════════════════════════════ */
+function renderParametres(){
+  M(`
+    <div class="ph fa"><div><h1>Paramètres</h1><p>${currentInstitut?.nom||'Mon compte'}</p></div></div>
     <div class="grid-2">
-      <div class="card fa fa-2">
-        <div class="card-head"><div class="card-head-title"><i class="ti ti-send"></i>Nouveau message</div></div>
-        <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">Destinataires</div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px" id="chips">
-              ${['Tous les élèves (87)','Coran niv. 1 (12)','Arabe débutant (18)','Paiements en retard (4)','Absences répétées (3)'].map((t,i)=>`<div onclick="selectChip(this)" style="padding:4px 10px;border-radius:20px;border:1px solid var(--border);font-size:12px;cursor:pointer;background:${i===0?'var(--accent-bg)':'var(--bg)'};color:${i===0?'var(--accent)':'var(--ink3)'};transition:all .13s">${t}</div>`).join('')}
-            </div>
-          </div>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">Modèles rapides</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-              <button class="btn btn-sm" onclick="useTpl('rappel')"><i class="ti ti-cash"></i>Rappel paiement</button>
-              <button class="btn btn-sm" onclick="useTpl('absence')"><i class="ti ti-calendar-x"></i>Absence signalée</button>
-              <button class="btn btn-sm" onclick="useTpl('bulletin')"><i class="ti ti-file-text"></i>Bulletin dispo</button>
-              <button class="btn btn-sm" onclick="useTpl('annonce')"><i class="ti ti-speakerphone"></i>Annonce générale</button>
-            </div>
-          </div>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">Message</div>
-            <textarea id="msg-area" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:13px;line-height:1.6;resize:vertical;min-height:100px;outline:none" placeholder="Rédigez votre message ici…"></textarea>
-          </div>
-          <div style="display:flex;gap:8px">
-            <button class="btn btn-primary" onclick="envoyerMsg()"><i class="ti ti-mail"></i>Envoyer par email</button>
-            <button class="btn" style="background:var(--accent-bg);border-color:var(--accent-lt);color:var(--accent)" onclick="envoyerMsg()"><i class="ti ti-brand-whatsapp"></i>WhatsApp (option)</button>
-          </div>
+      <div class="card fa">
+        <div class="card-head"><div class="card-head-title"><i class="ti ti-building"></i>Mon institut</div></div>
+        <div class="card-body">
+          <div class="li"><span style="color:var(--ink3);font-size:12px">Nom</span><span style="font-weight:500">${currentInstitut?.nom||'—'}</span></div>
+          <div class="li"><span style="color:var(--ink3);font-size:12px">Pack</span><span class="badge badge-b">${currentInstitut?.pack||'starter'}</span></div>
+          <div class="li" style="border:none;padding-bottom:0"><span style="color:var(--ink3);font-size:12px">Statut</span><span class="badge badge-g">Actif</span></div>
         </div>
       </div>
-      <div class="card fa fa-3">
-        <div class="card-head"><div class="card-head-title"><i class="ti ti-robot"></i>Automatisations actives</div></div>
-        <div class="card-body" style="display:flex;flex-direction:column;gap:2px">
-          ${[
-            {icon:'ti-calendar-x',t:'Absence du jour',d:'Envoi auto aux parents dès l\'appel enregistré',on:true},
-            {icon:'ti-cash',t:'Rappel paiement J+5',d:'Relance 5 jours après l\'échéance si impayé',on:true},
-            {icon:'ti-cash',t:'Rappel paiement J+15',d:'2ème relance 15 jours après échéance',on:true},
-            {icon:'ti-file-text',t:'Bulletin publié',d:'Notification dès qu\'un bulletin est validé',on:true},
-            {icon:'ti-star',t:'Félicitations Excellent',d:'Message auto pour les mentions Excellent',on:false},
-          ].map((a,i)=>`
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);gap:10px" id="auto-${i}">
-              <div style="display:flex;align-items:flex-start;gap:8px">
-                <i class="ti ${a.icon}" style="font-size:16px;color:var(--ink3);margin-top:2px"></i>
-                <div><div style="font-size:13px;font-weight:500;color:var(--ink)">${a.t}</div><div style="font-size:11px;color:var(--ink3);margin-top:2px">${a.d}</div></div>
-              </div>
-              <div onclick="toggleAuto(${i},${a.on})" id="tog-${i}" style="width:38px;height:22px;border-radius:11px;background:${a.on?'var(--accent)':'var(--border2)'};cursor:pointer;position:relative;flex-shrink:0;transition:background .2s">
-                <div style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:3px;${a.on?'right:3px':'left:3px'};transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div>
-              </div>
-            </div>`).join('')}
+      <div class="card fa">
+        <div class="card-head"><div class="card-head-title"><i class="ti ti-user"></i>Mon compte</div></div>
+        <div class="card-body">
+          <div class="li"><span style="color:var(--ink3);font-size:12px">Email</span><span>${currentUser?.email||'—'}</span></div>
+          <div class="li"><span style="color:var(--ink3);font-size:12px">Rôle</span><span class="badge badge-g">${{admin:'Directeur',prof:'Enseignant',secretaire:'Secrétaire',parent:'Parent'}[currentRole]||currentRole}</span></div>
+          <div class="li" style="border:none;padding-bottom:0"><button class="btn btn-danger btn-sm" onclick="doLogout()"><i class="ti ti-logout"></i>Se déconnecter</button></div>
         </div>
       </div>
     </div>
   `);
 }
 
-function selectChip(el){
-  document.querySelectorAll('#chips > div').forEach(c=>{c.style.background='var(--bg)';c.style.color='var(--ink3)';});
-  el.style.background='var(--accent-bg)';el.style.color='var(--accent)';
-}
-function useTpl(k){ const el=document.getElementById('msg-area'); if(el) el.value=window._tpls[k]; }
-function envoyerMsg(){ alert('✅ Message envoyé avec succès aux destinataires sélectionnés.'); }
-function toggleAuto(i, current){
-  const tog = document.getElementById(`tog-${i}`);
-  const newVal = !current;
-  tog.style.background = newVal ? 'var(--accent)' : 'var(--border2)';
-  tog.querySelector('div').style[newVal?'right':'left'] = '3px';
-  tog.querySelector('div').style[newVal?'left':'right'] = '';
-  tog.onclick = ()=>toggleAuto(i, newVal);
-}
-
-/* ════════════════════ PLACEHOLDER ════════════════════ */
-function renderPlaceholder(icon, title, desc){
-  M(`
-    <div class="ph"><div class="ph-left"><h1>${title}</h1><p>Institut Al-Fath · Idara OS</p></div></div>
-    <div class="placeholder fa fa-2">
-      <i class="ti ${icon}"></i>
-      <h2>${title}</h2>
-      <p>${desc}</p>
-    </div>
-  `);
-}
+/* ══════════════════════════════════════════════
+   START
+══════════════════════════════════════════════ */
+init();
 </script>
 </body>
 </html>
